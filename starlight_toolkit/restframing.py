@@ -1,7 +1,8 @@
 import numpy as np
 
 def wavelength_apply_redshift(wl, z, dest='rest'):
-    '''
+
+   '''
     Apply redshift correction to wavelength from to rest or observed frames.
     
     Parameters
@@ -33,7 +34,7 @@ def wavelength_apply_redshift(wl, z, dest='rest'):
         return op(wl[:, np.newaxis], 1. + z[np.newaxis, :])
 
 
-def spectra2restframe(l_obs, f_obs, z, kcor=1.0):
+def spectra2restframe(l_obs, f_obs, z):
     l_rest = wavelength_apply_redshift(l_obs, z, dest='rest')
-    f_rest = f_obs * (1.0 + z)**kcor
+    f_rest = f_obs * (1.0 + z)
     return l_rest, f_rest
