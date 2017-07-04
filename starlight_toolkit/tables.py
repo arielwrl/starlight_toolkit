@@ -8,44 +8,54 @@ from astropy.table import Table
 
 def read_output_table(filename):
     '''
-    Read STARLIGHT output file - version PANcMExStarlightChains_v03.for ...
+    Reads ``STARLIGHT`` output tables to a dictionary.
 
-    ElCid@Sanchica - 13/Feb/2012
+    Usage:
 
-    --------------------------------------------------------------------
-             Some notes on the structure of STARLIGHT output files
-    --------------------------------------------------------------------
+    .. code-block:: python
 
-     Considering the 1st line to be number 1 (ATT: **subtract** 1 in python!!): 
-         * The pop-vector block starts at line 64 and has N_base entries from n1 to n2:
-            n1 = 64
-            n2 = n1 + N_base - 1
+        from starlight_toolkit import read_output_table
 
-        * The Average & Chains light fractions block starts at line 64 + N_base + 5 and has N_par entries
-            n1 = 64 + N_base + 5 
-            n2 = n1 + N_par - 1, where N_par = N_base + 2 + N_exAV
-        * then comes the chain-LAx-pop-vectors block, whose N_base elements go from
-            n1 = 64 + N_base + 5 + N_par + 2
-            n2 = n1 + N_base - 1
-        * and the chain-mu_cor-pop-vectors block, whose N_base elements go from
-             n1 = 64 + N_base + 5 + N_par + 2 + N_base + 2
-            n2 = n1 + N_base - 1
-        * The chain chi2's and masses are in lines    
-             64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 2, and
-             64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 3, respectively, 
-             followed by 2 lines with v_0_before_EX0s and v_d_before_EX0s.
+        out = read_output_table('output_file')
+    '''
 
-        * The specral block starts with new line containing Nl_obs, index_Best_SSP, 
-         and i_SaveBestSingleCompFit at 
-              64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 10
-        * The l_obs , f_obs , f_syn , f_wei , Best_f_SSP info has Nl_obs entries, running from 
-             n1 = 64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 11
-            n2 = n1 + Nl_obs -1 
+    # Read STARLIGHT output file - version PANcMExStarlightChains_v03.for ...
+    #
+    # ElCid@Sanchica - 13/Feb/2012
+    #
+    # --------------------------------------------------------------------
+    #          Some notes on the structure of STARLIGHT output files
+    # --------------------------------------------------------------------
+    #
+    #  Considering the 1st line to be number 1 (ATT: **subtract** 1 in python!!):
+    #      * The pop-vector block starts at line 64 and has N_base entries from n1 to n2:
+    #         n1 = 64
+    #         n2 = n1 + N_base - 1
+    #
+    #     * The Average & Chains light fractions block starts at line 64 + N_base + 5 and has N_par entries
+    #         n1 = 64 + N_base + 5
+    #         n2 = n1 + N_par - 1, where N_par = N_base + 2 + N_exAV
+    #     * then comes the chain-LAx-pop-vectors block, whose N_base elements go from
+    #         n1 = 64 + N_base + 5 + N_par + 2
+    #         n2 = n1 + N_base - 1
+    #     * and the chain-mu_cor-pop-vectors block, whose N_base elements go from
+    #          n1 = 64 + N_base + 5 + N_par + 2 + N_base + 2
+    #         n2 = n1 + N_base - 1
+    #     * The chain chi2's and masses are in lines
+    #          64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 2, and
+    #          64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 3, respectively,
+    #          followed by 2 lines with v_0_before_EX0s and v_d_before_EX0s.
+    #
+    #     * The specral block starts with new line containing Nl_obs, index_Best_SSP,
+    #      and i_SaveBestSingleCompFit at
+    #           64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 10
+    #     * The l_obs , f_obs , f_syn , f_wei , Best_f_SSP info has Nl_obs entries, running from
+    #          n1 = 64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 11
+    #         n2 = n1 + Nl_obs -1
+    #
+    #     * The FIRc/QHRc/PHOc-related ouput is given at the end of the file, and
+    #     I still have to implement their reading here!
 
-        * The FIRc/QHRc/PHOc-related ouput is given at the end of the file, and 
-        I still have to implement their reading here!
-    --------------------------------------------------------------------
-'''
     if not os.path.exists(filename):
         raise Exception('File not found: %s' % filename)
 
@@ -695,50 +705,50 @@ def read_output_table(filename):
 
         # Reset & read PHO observed
         PHO_name = []
-        PHO_logY_TOT = []
+        PHO_magY_TOT = []
         PHO_YFrac2Model = []
-        PHO_ErrlogY = []
-        PHO_RangelogY = []
+        PHO_ErrmagY = []
+        PHO_RangemagY = []
         PHO_Chi2ScaleFactor = []
-        PHO_logY_obs = []
-        PHO_logY_low = []
-        PHO_logY_upp = []
+        PHO_magY_obs = []
+        PHO_magY_low = []
+        PHO_magY_upp = []
 
         # Read PHO observed
         _n1 = _n3
         _n2 = _n1 + keywords['NPHO_Ys']
         for i in range(_n1, _n2):
             PHO_name.append(data[i].split()[0])
-            PHO_logY_TOT.append(float(data[i].split()[2]))
+            PHO_magY_TOT.append(float(data[i].split()[2]))
             PHO_YFrac2Model.append(float(data[i].split()[3]))
-            PHO_ErrlogY.append(float(data[i].split()[4]))
-            PHO_RangelogY.append(float(data[i].split()[5]))
+            PHO_ErrmagY.append(float(data[i].split()[4]))
+            PHO_RangemagY.append(float(data[i].split()[5]))
             PHO_Chi2ScaleFactor.append(float(data[i].split()[6]))
-            PHO_logY_obs.append(float(data[i].split()[7]))
-            PHO_logY_low.append(float(data[i].split()[8]))
-            PHO_logY_upp.append(float(data[i].split()[9]))
+            PHO_magY_obs.append(float(data[i].split()[7]))
+            PHO_magY_low.append(float(data[i].split()[8]))
+            PHO_magY_upp.append(float(data[i].split()[9]))
 
         cols = [PHO_name,
-                PHO_logY_TOT,
+                PHO_magY_TOT,
                 PHO_YFrac2Model,
-                PHO_ErrlogY,
-                PHO_RangelogY,
+                PHO_ErrmagY,
+                PHO_RangemagY,
                 PHO_Chi2ScaleFactor,
-                PHO_logY_obs,
-                PHO_logY_low,
-                PHO_logY_upp]
+                PHO_magY_obs,
+                PHO_magY_low,
+                PHO_magY_upp]
 
         names = ['name',
-                 'logY_TOT',
-                 'YFrac2Model',
-                 'ErrlogY',
-                 'RangelogY',
+                 'magY_TOT',
+                 'Yfrac2model',
+                 'magYErr',
+                 'magYRange',
                  'Chi2ScaleFactor',
-                 'logY_obs',
-                 'logY_low',
-                 'logY_upp']
+                 'magY_obs',
+                 'magY_low',
+                 'magY_upp']
 
-        tables['PHO_Obs'] = Table(cols, names=names)
+        tables['PHO_obs'] = Table(cols, names=names)
 
         _n3 = _n2 + 2
 
@@ -752,15 +762,18 @@ def read_output_table(filename):
 
         _n3 += 2
 
-#  name/code  MeanLamb StdDevLamb  q_MeanLamb   logY_obs      ModlogY       chi2_Y   chi2_Y/chi2_Opt  chi2_Y/chi2_TOT
+#  name/code   MeanLamb PivotLamb StdDevLamb    q_MeanLamb  magY_obs     magY_mod     fY_obs        fY_mod       chi2_Y        chi2_Y/chi2_Opt  chi2_Y/chi2_TOT
         # Reset & read PHO model
-        PHO_name = []
-        PHO_MeanLamb = []
-        PHO_StdDevLamb = []
-        PHO_q_MeanLamb = []
-        PHO_logY_obs = []
-        PHO_ModlogY = []
-        PHO_chi2_Y = []
+        PHO_name          = []
+        PHO_MeanLamb      = []
+        PHO_PivotLamb     = []
+        PHO_StdDevLamb    = []
+        PHO_q_MeanLamb    = []
+        PHO_magY_obs      = []
+        PHO_magY_mod      = []
+        PHO_fY_obs        = []
+        PHO_fY_mod        = []
+        PHO_chi2_Y        = []
         PHO_chi2Y_chi2Opt = []
         PHO_chi2Y_chi2TOT = []
 
@@ -770,34 +783,46 @@ def read_output_table(filename):
         for i in range(_n1, _n2):
             PHO_name.append(data[i].split()[1])
             PHO_MeanLamb.append(float(data[i].split()[2]))
-            PHO_StdDevLamb.append(float(data[i].split()[3]))
-            PHO_q_MeanLamb.append(float(data[i].split()[4]))
-            PHO_logY_obs.append(float(data[i].split()[5]))
-            PHO_ModlogY.append(float(data[i].split()[6]))
-            PHO_chi2_Y.append(float(data[i].split()[7]))
-            PHO_chi2Y_chi2Opt.append(float(data[i].split()[8]))
-            PHO_chi2Y_chi2TOT.append(float(data[i].split()[9]))
+            PHO_PivotLamb.append(float(data[i].split()[3]))
+            PHO_StdDevLamb.append(float(data[i].split()[4]))
+            PHO_q_MeanLamb.append(float(data[i].split()[5]))
+            PHO_magY_obs.append(float(data[i].split()[6]))
+            PHO_magY_mod.append(float(data[i].split()[7]))
+            PHO_fY_obs.append(float(data[i].split()[8]))
+            PHO_fY_mod.append(float(data[i].split()[9]))
+            PHO_chi2_Y.append(float(data[i].split()[10]))
+            PHO_chi2Y_chi2Opt.append(float(data[i].split()[11]))
+            PHO_chi2Y_chi2TOT.append(float(data[i].split()[12]))
+
 
         cols = [PHO_name,
                 PHO_MeanLamb,
+                PHO_PivotLamb,
                 PHO_StdDevLamb,
                 PHO_q_MeanLamb,
-                PHO_logY_obs,
-                PHO_ModlogY,
+                PHO_magY_obs,
+                PHO_magY_mod,
+                PHO_fY_obs,
+                PHO_fY_mod,
                 PHO_chi2_Y,
                 PHO_chi2Y_chi2Opt,
                 PHO_chi2Y_chi2TOT]
-        names = ['name',
-                 'MeanLamb',
-                 'StdDevLamb',
-                 'q_MeanLamb',
-                 'logY_obs',
-                 'ModlogY',
-                 'chi2_Y',
-                 'chi2Y_chi2Opt',
-                 'chi2Y_chi2TOT']
 
-        tables['PHO_Mod'] = Table(cols, names=names)
+        names = ['name'
+                ,'MeanLamb'
+                ,'PivotLamb'
+                ,'StdDevLamb'
+                ,'q_MeanLamb'
+                ,'magY_obs'
+                ,'magY_mod'
+                ,'fY_obs'
+                ,'fY_mod'
+                ,'chi2_Y'
+                ,'chi2Y_chi2Opt'
+                ,'chi2Y_chi2TOT']
+
+
+        tables['PHO_mod'] = Table(cols, names=names)
 
         _n3 = _n2 + 2
 
