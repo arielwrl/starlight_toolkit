@@ -11,8 +11,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from starlight_toolkit.tables import read_output_table
 
-def plot_spec(ax, out_file, plot_obs=True, plot_error=False, plot_labels=False
-, obs_color='k', syn_color='b', w0_color='y', syn_label='Fitted Spectrum'):
+def plot_spec(out_file, ax=plt.subplot(111), plot_obs=True, plot_error=False
+, plot_labels=True, obs_color='k', syn_color='b', w0_color='y'
+, syn_label='Fitted Spectrum'):
     '''
     TODO: Add marks for clipped wavelengths, documentation.
 
