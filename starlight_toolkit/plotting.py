@@ -7,17 +7,36 @@ Created on 05/30/2017
 
 '''
 
+#TODO: reading output files in each function may be a bad idea, I should
+#create a quick_plot function that reads the output, and other functions
+#that take an output dictionary as input.
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 from starlight_toolkit.tables import read_output_table
 
 
-def plot_spec(out_file, ax=plt.subplot(111), plot_obs=True, plot_error=False
+def plot_spec(out_file, ax=None, plot_obs=True, plot_error=False
 , plot_labels=True, obs_color='k', syn_color='b', w0_color='y'
 , syn_label='Fitted Spectrum'):
     '''
     TODO: Add marks for clipped wavelengths, documentation.
+
+    Parameters
+    ----------
+        out_file : file, string
+                Name of the output file to be plotted
+
+        ax : matplotlib axis
+
+        plot_obs : boolean
+                If True, observed spectrum will be plotted
+
     '''
+
+    if ax=None:
+        ax = plt.gca()
 
     out = read_output_table(out_file)
 
@@ -49,7 +68,7 @@ def plot_spec(out_file, ax=plt.subplot(111), plot_obs=True, plot_error=False
     ax.set_xlim(out['keywords']['l_ini'],out['keywords']['l_fin'])
 
 
-def plot_filter(filter_file, ax=plt.subplot(111), filter_color='k'
+def plot_filter(filter_file, ax=None, filter_color='k'
 , filter_ls='dashed', redshift=0, scale_factor=1):
     '''
     Plots filter file.
@@ -60,6 +79,10 @@ def plot_filter(filter_file, ax=plt.subplot(111), filter_color='k'
     The variable scale_factor will be multiplied by the filter's transmission.
 
     '''
+
+    if ax=None:
+        ax = plt.gca()
+
     #Reading filter:
     wl_filter, T_filter = np.genfromtxt(filter_file).transpose()
 
@@ -68,8 +91,11 @@ def plot_filter(filter_file, ax=plt.subplot(111), filter_color='k'
     , linestyle=filter_ls)
 
 
-def plot_residual_spec(out_file, ax=plt.subplot(111), residual_color='k'
+def plot_residual_spec(out_file, ax=None, residual_color='k'
 , plot_labels=True):
+
+    if ax=None:
+        ax = plt.gca()
 
     out = read_output_table(out_file)
 
