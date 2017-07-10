@@ -19,23 +19,24 @@ from starlight_toolkit.tables import read_output_table
 
 def plot_spec(out_file, ax=None, plot_obs=True, plot_error=False
 , plot_labels=True, obs_color='k', syn_color='b', w0_color='y'
-, syn_label='Fitted Spectrum'):
+, clip_color='r', syn_label='Fitted Spectrum'):
     '''
     TODO: Add marks for clipped wavelengths, documentation.
 
     Parameters
     ----------
         out_file : file, string
-                Name of the output file to be plotted
+                Name of the output file to be plotted;
 
         ax : matplotlib axis
+                Axis to draw plot;
 
         plot_obs : boolean
-                If True, observed spectrum will be plotted
+                If True, observed spectrum will be plotted;
 
     '''
 
-    if ax=None:
+    if ax==None:
         ax = plt.gca()
 
     out = read_output_table(out_file)
@@ -44,6 +45,8 @@ def plot_spec(out_file, ax=None, plot_obs=True, plot_error=False
     out['spectra']['f_obs'], out['spectra']['f_syn'], out['spectra']['f_wei']
 
     w0 = out['spectra']['f_wei'] <= 0
+
+    clipped = out['spectra']['f_wei'] == -1.0
 
     error = 1/(f_wei[~w0]**2)
 
@@ -55,8 +58,12 @@ def plot_spec(out_file, ax=None, plot_obs=True, plot_error=False
         ax.plot(l_obs, f_obs, color=obs_color, lw=0.5, label='Observed Spectrum')
         ax.plot(l_obs, f_w0, color=w0_color, lw=0.5, label=r'$w_\lambda=0$')
 
+        if clipped.sum() > 0:
+            ax.plot(l_obs[clipped], f_obs[clipped], color=clip_color
+            , marker='x', label=r'Clipped')
+
     if plot_error==True:
-        ax.plot(l_obs[~w0], error, '--r')
+        ax.plot(l_obs[~w0], error, '--r', label=r'Error')
 
     if plot_labels==True:
         ax.set_ylabel(r'$F_\lambda/F_{\lambda0}$', fontsize=15)
@@ -64,7 +71,7 @@ def plot_spec(out_file, ax=None, plot_obs=True, plot_error=False
 
     ax.plot(l_obs, f_syn, color=syn_color, lw=0.5, label=syn_label)
 
-    ax.set_ylim(0, 1.2 * np.max(f_syn))
+    ax.set_ylim(0, 1.3 * np.max(f_syn))
     ax.set_xlim(out['keywords']['l_ini'],out['keywords']['l_fin'])
 
 
@@ -80,7 +87,7 @@ def plot_filter(filter_file, ax=None, filter_color='k'
 
     '''
 
-    if ax=None:
+    if ax==None:
         ax = plt.gca()
 
     #Reading filter:
@@ -94,7 +101,7 @@ def plot_filter(filter_file, ax=None, filter_color='k'
 def plot_residual_spec(out_file, ax=None, residual_color='k'
 , plot_labels=True):
 
-    if ax=None:
+    if ax==None:
         ax = plt.gca()
 
     out = read_output_table(out_file)
