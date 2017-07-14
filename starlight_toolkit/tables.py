@@ -707,8 +707,8 @@ def read_output_table(filename):
         PHO_name = []
         PHO_magY_TOT = []
         PHO_YFrac2Model = []
-        PHO_ErrmagY = []
-        PHO_RangemagY = []
+        PHO_magYErr = []
+        PHO_magYRange = []
         PHO_Chi2ScaleFactor = []
         PHO_magY_obs = []
         PHO_magY_low = []
@@ -721,8 +721,8 @@ def read_output_table(filename):
             PHO_name.append(data[i].split()[0])
             PHO_magY_TOT.append(float(data[i].split()[2]))
             PHO_YFrac2Model.append(float(data[i].split()[3]))
-            PHO_ErrmagY.append(float(data[i].split()[4]))
-            PHO_RangemagY.append(float(data[i].split()[5]))
+            PHO_magYErr.append(float(data[i].split()[4]))
+            PHO_magYRange.append(float(data[i].split()[5]))
             PHO_Chi2ScaleFactor.append(float(data[i].split()[6]))
             PHO_magY_obs.append(float(data[i].split()[7]))
             PHO_magY_low.append(float(data[i].split()[8]))
@@ -731,8 +731,8 @@ def read_output_table(filename):
         cols = [PHO_name,
                 PHO_magY_TOT,
                 PHO_YFrac2Model,
-                PHO_ErrmagY,
-                PHO_RangemagY,
+                PHO_magYErr,
+                PHO_magYRange,
                 PHO_Chi2ScaleFactor,
                 PHO_magY_obs,
                 PHO_magY_low,

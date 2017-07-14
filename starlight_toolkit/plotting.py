@@ -19,9 +19,10 @@ from starlight_toolkit.tables import read_output_table
 
 def plot_spec(out_file, ax=None, plot_obs=True, plot_error=False
 , plot_labels=True, obs_color='k', syn_color='b', w0_color='y'
-, clip_color='r', syn_label='Fitted Spectrum'):
+, clip_color='c', syn_label='Fitted Spectrum'):
     '''
     TODO: Add marks for clipped wavelengths, documentation.
+          Show number of clipped points.
 
     Parameters
     ----------
@@ -48,7 +49,7 @@ def plot_spec(out_file, ax=None, plot_obs=True, plot_error=False
 
     clipped = out['spectra']['f_wei'] == -1.0
 
-    error = 1/(f_wei[~w0]**2)
+    error = 1/(f_wei[~w0])
 
     if plot_obs==True:
 
@@ -59,8 +60,8 @@ def plot_spec(out_file, ax=None, plot_obs=True, plot_error=False
         ax.plot(l_obs, f_w0, color=w0_color, lw=0.5, label=r'$w_\lambda=0$')
 
         if clipped.sum() > 0:
-            ax.plot(l_obs[clipped], f_obs[clipped], color=clip_color
-            , marker='x', label=r'Clipped')
+            ax.plot(l_obs, np.ma.masked_array(f_obs, mask=~clipped), color=clip_color
+            , marker='.', label=r'Clipped')
 
     if plot_error==True:
         ax.plot(l_obs[~w0], error, '--r', label=r'Error')
