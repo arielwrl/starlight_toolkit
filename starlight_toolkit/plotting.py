@@ -18,7 +18,7 @@ from starlight_toolkit.tables import read_output_table
 
 
 def plot_spec(out_file, ax=None, plot_obs=True, plot_error=False
-, plot_labels=True, obs_color='k', syn_color='b', w0_color='y'
+, plot_labels=True, obs_color='k', syn_color='b', syn_lw=0.5, w0_color='y'
 , clip_color='c', syn_label='Fitted Spectrum'):
     '''
     TODO: Add marks for clipped wavelengths, documentation.
@@ -60,8 +60,8 @@ def plot_spec(out_file, ax=None, plot_obs=True, plot_error=False
         ax.plot(l_obs, f_w0, color=w0_color, lw=0.5, label=r'$w_\lambda=0$')
 
         if clipped.sum() > 0:
-            ax.plot(l_obs, np.ma.masked_array(f_obs, mask=~clipped), color=clip_color
-            , marker='.', label=r'Clipped')
+            ax.scatter(l_obs, np.ma.masked_array(f_obs, mask=~clipped), color=clip_color
+            , marker='.', label=r'Clipped', zorder=5)
 
     if plot_error==True:
         ax.plot(l_obs[~w0], error, '--r', label=r'Error')
@@ -70,7 +70,7 @@ def plot_spec(out_file, ax=None, plot_obs=True, plot_error=False
         ax.set_ylabel(r'$F_\lambda/F_{\lambda0}$', fontsize=15)
         ax.set_xlabel(r'$\lambda\mathrm{[\AA]}$', fontsize=15)
 
-    ax.plot(l_obs, f_syn, color=syn_color, lw=0.5, label=syn_label)
+    ax.plot(l_obs, f_syn, color=syn_color, lw=syn_lw, label=syn_label)
 
     ax.set_ylim(0, 1.3 * np.max(f_syn))
     ax.set_xlim(out['keywords']['l_ini'],out['keywords']['l_fin'])
