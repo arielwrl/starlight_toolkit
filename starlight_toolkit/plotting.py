@@ -49,7 +49,7 @@ def plot_spec(out_file, ax=None, plot_obs=True, plot_error=False
 
     clipped = out['spectra']['f_wei'] == -1.0
 
-    error = 1/(f_wei[~w0])
+    error = np.ma.masked_array(1/f_wei, mask=w0)
 
     if plot_obs==True:
 
@@ -64,7 +64,7 @@ def plot_spec(out_file, ax=None, plot_obs=True, plot_error=False
             , marker='.', label=r'Clipped', zorder=5)
 
     if plot_error==True:
-        ax.plot(l_obs[~w0], error, '--r', label=r'Error')
+        ax.plot(l_obs, error, '--r', label=r'Error')
 
     if plot_labels==True:
         ax.set_ylabel(r'$F_\lambda/F_{\lambda0}$', fontsize=15)
