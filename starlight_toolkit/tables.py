@@ -8,12 +8,10 @@ from astropy.table import Table
 
 def read_output_table(filename):
     '''
-    Reads ``STARLIGHT`` output tables to a dictionary.
+    Reads STARLIGHT output tables to a dictionary.
 
     Usage:
-
-    .. code-block:: python
-
+    ------
         from starlight_toolkit import read_output_table
 
         out = read_output_table('output_file')
@@ -68,10 +66,7 @@ def read_output_table(filename):
     data = f.read().splitlines()
     f.close()
 
-    fileVersion = data[1].split()[3]
-    # FIXME: How to handle starlight file versions?
-#    if fileVersion != _getStarlightVersion():
-#        raise Exception('Incorrect starlight version. Expected: %s, found: %' (_getStarlightVersion(), fileVersion))
+    fileVersion = data[1].split()[5]
     keywords = {}
     tables = {}
     tables['keywords'] = keywords
@@ -91,11 +86,24 @@ def read_output_table(filename):
     keywords['N_base'] = int(data[9].split()[0])
     keywords['N_exAV_components'] = int(data[10].split()[0])
     keywords['N_exAV'] = int(data[10].split()[1])
-    keywords['IsFIRcOn'] = int(data[10].split()[2])
-    keywords['IsQHRcOn'] = int(data[10].split()[3])
-    keywords['IsPHOcOn'] = int(data[10].split()[4])
-    keywords['iFitPowerLaw'] = int(data[11].split()[0])
-    keywords['alpha_PowerLaw'] = float(data[12].split()[0])
+    
+    keywords['IsCFlawOn'] = int(data[10].split()[2])
+    keywords['a0_CFl'] = float(data[10].split()[3])
+    keywords['a1_CFl'] = float(data[10].split()[4])
+    
+    
+    keywords['IsFIRcOn'] = int(data[11].split()[0])
+    keywords['IsQHRcOn'] = int(data[11].split()[1])
+    keywords['IsPHOcOn'] = int(data[11].split()[2])
+    keywords['IsOPTimize_fn_OPT'] = int(data[11].split()[3])
+
+    
+    keywords['ETC_ESM'] = data[12].split()[0]
+    keywords['ETC_gamma'] = float(data[12].split()[1])
+    keywords['Np_PHO'] = int(data[12].split()[2])
+    keywords['Np_QHR'] = int(data[12].split()[3])
+    keywords['Np_FIR'] = int(data[12].split()[4])
+    
     keywords['red_law_option'] = data[13].split()[0]
     keywords['q_norm'] = float(data[14].split()[0])
     keywords['flux_unit'] = float(data[14].split()[1])
@@ -121,15 +129,19 @@ def read_output_table(filename):
     keywords['SN_normwin'] = float(data[31].split()[0])
     keywords['SNerr_snwin'] = float(data[32].split()[0])
     keywords['SNerr_normwin'] = float(data[33].split()[0])
-    keywords['fscale_chi2'] = float(data[34].split()[0])
-    keywords['IsOptimize_fn_OPT'] = float(data[34].split()[1])
-
+   
+    keywords['ETC_GlobalChi2ScaleFactor'] = float(data[34].split()[0])
+    keywords['FIR_GlobalChi2ScaleFactor'] = float(data[34].split()[1])
+    keywords['QHR_GlobalChi2ScaleFactor'] = float(data[34].split()[2])
+    keywords['PHO_GlobalChi2ScaleFactor'] = float(data[34].split()[3])
+        
     # etc...
     keywords['idum_orig'] = int(data[37].split()[0])
     keywords['NOl_eff'] = int(data[38].split()[0])
     keywords['Nl_eff'] = int(data[39].split()[0])
     keywords['Ntot_clipped'] = int(data[40].split()[0])
     keywords['clip_method'] = data[40].split()[1]
+    keywords['SNmax_threshold'] = float(data[40].split()[2])
     keywords['Nglobal_steps'] = int(data[41].split()[0])
     keywords['N_chains'] = int(data[42].split()[0])
     keywords['NEX0s_base'] = int(data[43].split()[0])
@@ -148,7 +160,7 @@ def read_output_table(filename):
     keywords['chi2'] = float(data[49].split()[0])
     keywords['adev'] = float(data[50].split()[0])
     keywords['chi2_TOT'] = float(data[51].split()[0])
-    keywords['chi2_Opt'] = float(data[51].split()[1])
+    keywords['chi2_OPT'] = float(data[51].split()[1])
     keywords['chi2_FIR'] = float(data[51].split()[2])
     keywords['chi2_QHR'] = float(data[51].split()[3])
     keywords['chi2_PHO'] = float(data[51].split()[4])
@@ -158,9 +170,10 @@ def read_output_table(filename):
     keywords['Mini_tot'] = float(data[54].split()[0])
     keywords['Mcor_tot'] = float(data[55].split()[0])
 
-    keywords['v_0'] = float(data[57].split()[0])
-    keywords['v_d'] = float(data[58].split()[0])
-    keywords['A_V'] = float(data[59].split()[0])
+    keywords['v0'] = float(data[57].split()[0])
+    keywords['vd'] = float(data[58].split()[0])
+    keywords['AV'] = float(data[59].split()[0])
+
 
     # Reset populations lists
     popx = []    # column 2
@@ -398,7 +411,7 @@ def read_output_table(filename):
         keywords['FIRbeta_D'] = float(data[_n3].split()[0])
         keywords['FIRbeta_I'] = float(data[_n3].split()[1])
         _n3 += 1
-        keywords['log_LFIR/LOpt_rough'] = float(data[_n3].split()[0])
+        keywords['log_LFIR/LOPT_rough'] = float(data[_n3].split()[0])
         _n3 += 1
 
         _n3 += 2
@@ -410,10 +423,10 @@ def read_output_table(filename):
         keywords['FIR_BOL_Ratio'] = float(data[_n3].split()[1])
         _n3 += 1
         keywords['chi2_FIR'] = float(data[_n3].split()[0])
-        keywords['chi2_Opt'] = float(data[_n3].split()[1])
+        keywords['chi2_OPT'] = float(data[_n3].split()[1])
         _n3 += 1
         keywords['chi2_FIR/TOT_Perc'] = float(data[_n3].split()[0])
-        keywords['chi2_Opt/TOT_Perc'] = float(data[_n3].split()[1])
+        keywords['chi2_OPT/TOT_Perc'] = float(data[_n3].split()[1])
         _n3 += 1
 
         _n3 += 2
@@ -484,6 +497,7 @@ def read_output_table(filename):
             _n3 = _n3 + 27 + keywords['N_base']
 
         keywords['QHRbeta_I'] = float(data[_n3].split()[0])
+        keywords['IsReadQHfromBaseFile'] = int(data[_n3].split()[1])
         _n3 += 1
         keywords['QHR_arq_ETCinfo'] = (data[_n3].split()[0])
         _n3 += 1
@@ -561,39 +575,25 @@ def read_output_table(filename):
         keywords['ELR_errAV_neb'] = float(data[_n3].split()[7])
         _n3 += 1
 
-        if (keywords['IsELROn'] == 1):
 
-            keywords['ELR_Err_logR'] = float(data[_n3].split()[0])
-            keywords['ELR_RangelogR'] = float(data[_n3].split()[1])
-            keywords['ELR_logR_low'] = float(data[_n3].split()[2])
-            keywords['ELR_logR_upp'] = float(data[_n3].split()[3])
-            keywords['ELR_Chi2ScaleFactor'] = float(data[_n3].split()[4])
-            _n3 += 1
+        keywords['ELR_Err_logR'] = float(data[_n3].split()[0])
+        keywords['ELR_RangelogR'] = float(data[_n3].split()[1])
+        keywords['ELR_logR_low'] = float(data[_n3].split()[2])
+        keywords['ELR_logR_upp'] = float(data[_n3].split()[3])
+        keywords['ELR_Chi2ScaleFactor'] = float(data[_n3].split()[4])
+        _n3 += 1
 
-            # WARNING!!! Starlight output labels logRobs & ModlogR in the wrong
-            # order!
-            keywords['ELR_ModlogR'] = float(data[_n3].split()[0])
-            keywords['ELR_logRobs'] = float(data[_n3].split()[1])
-            keywords['ELR_chi2_ELR'] = float(data[_n3].split()[2])
-            keywords[
-                'ELR_chi2_ELR/chi2_QHR'] = float(data[_n3].split()[3])
-            keywords[
-                'ELR_chi2_ELR/chi2_TOT'] = float(data[_n3].split()[4])
-            _n3 += 1
-        else:
-            _n3 += 2
-
-        _n3 += 2
+        keywords['ELR_logRobs'] = float(data[_n3].split()[0])
+        keywords['ELR_ModlogR'] = float(data[_n3].split()[1])
+        keywords['ELR_chi2_ELR'] = float(data[_n3].split()[2])
+        
+        _n3 += 3
 
         keywords['log_QH0_PhotPerSec'] = float(data[_n3].split()[0])
         keywords['log_QHeff_PhotPerSec'] = float(data[_n3].split()[1])
         _n3 += 1
-        keywords['chi2_QHR/TOT_Perc'] = float(data[_n3].split()[0])
-        keywords['chi2_Opt/TOT_Perc'] = float(data[_n3].split()[1])
-        _n3 += 1
         keywords['chi2_QHR'] = float(data[_n3].split()[0])
-        keywords['chi2_Opt'] = float(data[_n3].split()[1])
-        keywords['chi2_TOT'] = float(data[_n3].split()[2])
+        keywords['chi2_OPT'] = float(data[_n3].split()[1])
         _n3 += 1
 
         _n3 += 2
@@ -604,9 +604,7 @@ def read_output_table(filename):
         QHR_logY_obs = []
         QHR_ModlogY = []
         QHR_chi2_Y = []
-        QHR_chi2Y_chi2Opt = []
-        QHR_chi2Y_chi2TOT = []
-
+        
         # Read QHR model
         _n1 = _n3
         _n2 = _n1 + keywords['NQHR_Ys']
@@ -616,24 +614,20 @@ def read_output_table(filename):
             QHR_logY_obs.append(float(data[i].split()[3]))
             QHR_ModlogY.append(float(data[i].split()[4]))
             QHR_chi2_Y.append(float(data[i].split()[5]))
-            QHR_chi2Y_chi2Opt.append(float(data[i].split()[6]))
-            QHR_chi2Y_chi2TOT.append(float(data[i].split()[7]))
-
+            
         cols = [QHR_lambda,
                 QHR_q_lambda,
                 QHR_logY_obs,
                 QHR_ModlogY,
                 QHR_chi2_Y,
-                QHR_chi2Y_chi2Opt,
-                QHR_chi2Y_chi2TOT]
+                ]
 
         names = ['lambda',
                  'q_lambda',
                  'logY_obs',
                  'ModlogY',
                  'chi2_Y',
-                 'chi2Y_chi2Opt',
-                 'chi2Y_chi2TOT']
+                 ]
 
         tables['QHR_Mod'] = Table(cols, names=names)
 
@@ -686,10 +680,10 @@ def read_output_table(filename):
 
         # Skip QHR
         if (keywords['IsQHRcOn'] != 0):
-            _n3 = _n3 + 29 + 2 * \
+            _n3 = _n3 + 28 + 2 * \
                 keywords['NQHR_Ys'] + keywords['N_base']
 
-        keywords['PHO_arq_ETCinfo'] = (data[_n3].split()[0])
+        keywords['PHO_arq_ETCinfo'] = data[_n3].split()[0]
         _n3 += 1
         keywords['PHO_LumDistInMpc'] = float(data[_n3].split()[0])
         _n3 += 1
@@ -752,17 +746,13 @@ def read_output_table(filename):
 
         _n3 = _n2 + 2
 
-        keywords['chi2_PHO/TOT_Perc'] = float(data[_n3].split()[0])
-        keywords['chi2_Opt/TOT_Perc'] = float(data[_n3].split()[1])
-        _n3 += 1
         keywords['chi2_PHO'] = float(data[_n3].split()[0])
-        keywords['chi2_Opt'] = float(data[_n3].split()[1])
-        keywords['chi2_TOT'] = float(data[_n3].split()[2])
+        keywords['chi2_OPT'] = float(data[_n3].split()[1])
         _n3 += 1
 
         _n3 += 2
 
-#  name/code   MeanLamb PivotLamb StdDevLamb    q_MeanLamb  magY_obs     magY_mod     fY_obs        fY_mod       chi2_Y        chi2_Y/chi2_Opt  chi2_Y/chi2_TOT
+#  name/code   MeanLamb PivotLamb StdDevLamb    q_MeanLamb  magY_obs     magY_mod     fY_obs        fY_mod       chi2_Y        chi2_Y/chi2_OPT  chi2_Y/chi2_TOT
         # Reset & read PHO model
         PHO_name          = []
         PHO_MeanLamb      = []
@@ -774,8 +764,6 @@ def read_output_table(filename):
         PHO_fY_obs        = []
         PHO_fY_mod        = []
         PHO_chi2_Y        = []
-        PHO_chi2Y_chi2Opt = []
-        PHO_chi2Y_chi2TOT = []
 
         # Read PHO model
         _n1 = _n3
@@ -791,8 +779,6 @@ def read_output_table(filename):
             PHO_fY_obs.append(float(data[i].split()[8]))
             PHO_fY_mod.append(float(data[i].split()[9]))
             PHO_chi2_Y.append(float(data[i].split()[10]))
-            PHO_chi2Y_chi2Opt.append(float(data[i].split()[11]))
-            PHO_chi2Y_chi2TOT.append(float(data[i].split()[12]))
 
 
         cols = [PHO_name,
@@ -805,8 +791,7 @@ def read_output_table(filename):
                 PHO_fY_obs,
                 PHO_fY_mod,
                 PHO_chi2_Y,
-                PHO_chi2Y_chi2Opt,
-                PHO_chi2Y_chi2TOT]
+                ]
 
         names = ['name'
                 ,'MeanLamb'
@@ -818,11 +803,9 @@ def read_output_table(filename):
                 ,'fY_obs'
                 ,'fY_mod'
                 ,'chi2_Y'
-                ,'chi2Y_chi2Opt'
-                ,'chi2Y_chi2TOT']
+                ]
 
-
-        tables['PHO_mod'] = Table(cols, names=names)
+        tables['PHO_Mod'] = Table(cols, names=names)
 
         _n3 = _n2 + 2
 

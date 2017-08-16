@@ -21,8 +21,8 @@ def plot_spec(out_file, ax=None, plot_obs=True, plot_error=False
 , plot_labels=True, obs_color='k', syn_color='b', syn_lw=0.5, w0_color='y'
 , clip_color='c', syn_label='Fitted Spectrum'):
     '''
-    TODO: Add marks for clipped wavelengths, documentation.
-          Show number of clipped points.
+
+    Quick plots for Starlight output files.
 
     Parameters
     ----------
@@ -79,7 +79,7 @@ def plot_spec(out_file, ax=None, plot_obs=True, plot_error=False
 def plot_filter(filter_file, ax=None, filter_color='k'
 , filter_ls='dashed', redshift=0, scale_factor=1):
     '''
-    Plots filter file.
+    Plots filter transmission curve.
 
     To plot filters in the restframe, you should provide the galaxy's redshift,
     which is set to zero as default.
