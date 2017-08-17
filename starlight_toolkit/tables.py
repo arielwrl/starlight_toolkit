@@ -258,6 +258,7 @@ def read_output_table(filename):
              'p_AV',
              'p_x',
              'popAV_tot']
+    
     tables['population'] = Table(cols, names=names)
 
     #--------------------------------------------------------------------
@@ -389,19 +390,20 @@ def read_output_table(filename):
         _n2 = _n1 + keywords['Nl_obs']
         _n3 = _n2 + 8
 
-        keywords['FIR_arq_ETCinfo'] = (data[_n3].split()[0])
+
+        keywords['FIR_arq_ETCinfo'] = data[_n3].split()[0]
         _n3 += 1
         keywords['FIR_LumDistInMpc'] = float(data[_n3].split()[0])
         _n3 += 1
-        keywords['FIR_logLFIR_TOTInLsun'] = float(data[_n3].split()[0])
+        keywords['FIR_logLFIR_TOT'] = float(data[_n3].split()[0])
         _n3 += 1
         keywords['FIR_LFIRFrac2Model'] = float(data[_n3].split()[0])
         _n3 += 1
-        keywords['FIR_logLFIR_obsInLsun'] = float(data[_n3].split()[0])
+        keywords['FIR_logLFIR_obs'] = float(data[_n3].split()[0])
         _n3 += 1
-        keywords['FIR_ErrlogLFIRInDex'] = float(data[_n3].split()[0])
+        keywords['FIR_ErrlogLFIR'] = float(data[_n3].split()[0])
         _n3 += 1
-        keywords['FIR_RangelogLFIRInDex'] = float(data[_n3].split()[0])
+        keywords['FIR_RangelogLFIR'] = float(data[_n3].split()[0])
         _n3 += 1
         keywords['FIRChi2ScaleFactor'] = float(data[_n3].split()[0])
         _n3 += 1
@@ -412,24 +414,17 @@ def read_output_table(filename):
         keywords['FIRbeta_I'] = float(data[_n3].split()[1])
         _n3 += 1
         keywords['log_LFIR/LOPT_rough'] = float(data[_n3].split()[0])
-        _n3 += 1
+        _n3 += 3
 
-        _n3 += 2
-
-        keywords['FIRModlogLFIRInLsun'] = float(data[_n3].split()[0])
+        keywords['FIR_logLFIR_mod'] = float(data[_n3].split()[0])
         keywords['FIRModObsRatio'] = float(data[_n3].split()[1])
         _n3 += 1
-        keywords['FIRModlogLBOLInLsun'] = float(data[_n3].split()[0])
+        keywords['FIR_logLBOL_mod'] = float(data[_n3].split()[0])
         keywords['FIR_BOL_Ratio'] = float(data[_n3].split()[1])
         _n3 += 1
         keywords['chi2_FIR'] = float(data[_n3].split()[0])
         keywords['chi2_OPT'] = float(data[_n3].split()[1])
-        _n3 += 1
-        keywords['chi2_FIR/TOT_Perc'] = float(data[_n3].split()[0])
-        keywords['chi2_OPT/TOT_Perc'] = float(data[_n3].split()[1])
-        _n3 += 1
-
-        _n3 += 2
+        _n3 += 3
 
         # Reset & read FIR-related SSP arrays
         x_FIR = []
@@ -441,6 +436,8 @@ def read_output_table(filename):
         R_opt = []
         R_Lya = []
         R_LCE = []
+
+        
 
         # Read FIR-related SSP arrays
         _n1 = _n3
@@ -477,6 +474,7 @@ def read_output_table(filename):
                  'R_LCE']
 
         tables['FIR'] = Table(cols, names=names)
+        tables['FIR'].keys()
 
     #--------------------------------------------------------------------
     # Reading QHR-related output
@@ -494,12 +492,12 @@ def read_output_table(filename):
 
         # Skip FIR
         if (keywords['IsFIRcOn'] != 0):
-            _n3 = _n3 + 27 + keywords['N_base']
-
+            _n3 = _n3 + 26 + keywords['N_base']
+        
         keywords['QHRbeta_I'] = float(data[_n3].split()[0])
         keywords['IsReadQHfromBaseFile'] = int(data[_n3].split()[1])
         _n3 += 1
-        keywords['QHR_arq_ETCinfo'] = (data[_n3].split()[0])
+        keywords['QHR_arq_ETCinfo'] = data[_n3].split()[0]
         _n3 += 1
         keywords['QHR_LumDistInMpc'] = float(data[_n3].split()[0])
         _n3 += 1
@@ -507,9 +505,7 @@ def read_output_table(filename):
             data[_n3].split()[0])
         _n3 += 1
         keywords['NQHR_Ys'] = int(data[_n3].split()[0])
-        _n3 += 1
-
-        _n3 += 2
+        _n3 += 3
 
         # Reset & read QHR observed
         QHR_lambda = []
@@ -676,7 +672,7 @@ def read_output_table(filename):
 
         # Skip FIR
         if (keywords['IsFIRcOn'] != 0):
-            _n3 = _n3 + 27 + keywords['N_base']
+            _n3 = _n3 + 26 + keywords['N_base']
 
         # Skip QHR
         if (keywords['IsQHRcOn'] != 0):
@@ -805,7 +801,7 @@ def read_output_table(filename):
                 ,'chi2_Y'
                 ]
 
-        tables['PHO_Mod'] = Table(cols, names=names)
+        tables['PHO_mod'] = Table(cols, names=names)
 
         _n3 = _n2 + 2
 
