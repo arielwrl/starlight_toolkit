@@ -6,7 +6,7 @@ from astropy.table import Table
 
 
 
-def read_output_table(filename):
+def read_output_file(filename):
     '''
     Reads STARLIGHT output tables to a dictionary.
 
