@@ -7,19 +7,71 @@ Created on 05/30/2017
 
 '''
 
-#TODO: reading output files in each function may be a bad idea, I should
-#create a quick_plot function that reads the output, and other functions
-#that take an output dictionary as input.
-
-
 import numpy as np
 import matplotlib.pyplot as plt
 from starlight_toolkit.tables import read_output_table
 
 
-def plot_spec(out_file, ax=None, plot_obs=True, plot_error=False
+def plot_spec(out, ax=None, plot_obs=True, plot_error=True
 , plot_labels=True, obs_color='k', syn_color='b', syn_lw=0.5, w0_color='y'
-, clip_color='c', syn_label='Fitted Spectrum'):
+, clip_color='m', syn_label='Fitted Spectrum'):
+    '''
+
+    Quick plots for Starlight output files.
+
+    Parameters
+    ----------
+        out : Starlight output dictionary;
+
+        ax  : matplotlib axis
+                Axis to draw plot;
+
+        plot_obs : boolean
+                If True, observed spectrum will be plotted;
+
+    '''
+
+    if ax==None:
+        ax = plt.gca()
+
+    l_obs, f_obs, f_syn, f_wei = out['spectra']['l_obs'], \
+    out['spectra']['f_obs'], out['spectra']['f_syn'], out['spectra']['f_wei']
+
+    w0 = out['spectra']['f_wei'] <= 0
+
+    clipped = out['spectra']['f_wei'] == -1.0
+
+    error = np.ma.masked_array(1/f_wei, mask=w0)
+
+    if plot_obs==True:
+
+        f_obs_masked = np.ma.masked_array(data=f_obs, mask=w0)
+        f_w0         = np.ma.masked_array(data=f_obs, mask=~w0)
+
+        ax.plot(l_obs, f_obs, color=obs_color, lw=0.5, label='Observed Spectrum')
+        ax.plot(l_obs, f_w0, color=w0_color, lw=0.5, label=r'$w_\lambda=0$')
+
+        if clipped.sum() > 0:
+            ax.scatter(l_obs, np.ma.masked_array(f_obs, mask=~clipped), color=clip_color
+            , marker='.', label=r'Clipped', zorder=5)
+
+    if plot_error==True:
+        ax.plot(l_obs, error, '--r', label=r'Error')
+
+    if plot_labels==True:
+        ax.set_ylabel(r'$F_\lambda/F_{\lambda0}$', fontsize=15)
+        ax.set_xlabel(r'$\lambda\mathrm{[\AA]}$', fontsize=15)
+
+    ax.plot(l_obs, f_syn, color=syn_color, lw=syn_lw, label=syn_label)
+
+    ax.set_ylim(0, 1.3 * np.max(f_syn))
+    ax.set_xlim(out['keywords']['l_ini'],out['keywords']['l_fin'])
+
+
+
+def plot_spec_from_file(out_file, ax=None, plot_obs=True, plot_error=True
+, plot_labels=True, obs_color='k', syn_color='b', syn_lw=0.5, w0_color='y'
+, clip_color='m', syn_label='Fitted Spectrum'):
     '''
 
     Quick plots for Starlight output files.
@@ -99,14 +151,13 @@ def plot_filter(filter_file, ax=None, filter_color='k'
     , linestyle=filter_ls)
 
 
-def plot_residual_spec(out_file, ax=None, residual_color='k'
+def plot_residual_spec(out, ax=None, residual_color='k'
 , plot_labels=True):
 
     if ax==None:
         ax = plt.gca()
 
-    out = read_output_table(out_file)
-
+   
     l_obs, f_obs, f_syn, f_wei = out['spectra']['l_obs'], \
     out['spectra']['f_obs'], out['spectra']['f_syn'], out['spectra']['f_wei']
 
@@ -119,3 +170,4 @@ def plot_residual_spec(out_file, ax=None, residual_color='k'
     if plot_labels==True:
         ax.set_xlabel(r'$\lambda[\mathrm{\AA}]$')
         ax.set_ylabel(r'Residual Spectrum')
+        

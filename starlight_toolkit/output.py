@@ -5,54 +5,53 @@ import numpy as np
 from astropy.table import Table
 
 
-
 def read_output_file(filename):
     '''
     Reads STARLIGHT output tables to a dictionary.
 
+    Designed for STARLIGHT version v06r1.
+
     Usage:
     ------
-        from starlight_toolkit import read_output_table
+        from starlight_toolkit.output import read_output_file
 
-        out = read_output_table('output_file')
+        out = read_output_file(filename)
+    
     '''
 
-    # Read STARLIGHT output file - version PANcMExStarlightChains_v03.for ...
-    #
-    # ElCid@Sanchica - 13/Feb/2012
-    #
-    # --------------------------------------------------------------------
-    #          Some notes on the structure of STARLIGHT output files
-    # --------------------------------------------------------------------
-    #
-    #  Considering the 1st line to be number 1 (ATT: **subtract** 1 in python!!):
-    #      * The pop-vector block starts at line 64 and has N_base entries from n1 to n2:
-    #         n1 = 64
-    #         n2 = n1 + N_base - 1
-    #
-    #     * The Average & Chains light fractions block starts at line 64 + N_base + 5 and has N_par entries
-    #         n1 = 64 + N_base + 5
-    #         n2 = n1 + N_par - 1, where N_par = N_base + 2 + N_exAV
-    #     * then comes the chain-LAx-pop-vectors block, whose N_base elements go from
-    #         n1 = 64 + N_base + 5 + N_par + 2
-    #         n2 = n1 + N_base - 1
-    #     * and the chain-mu_cor-pop-vectors block, whose N_base elements go from
-    #          n1 = 64 + N_base + 5 + N_par + 2 + N_base + 2
-    #         n2 = n1 + N_base - 1
-    #     * The chain chi2's and masses are in lines
-    #          64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 2, and
-    #          64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 3, respectively,
-    #          followed by 2 lines with v_0_before_EX0s and v_d_before_EX0s.
-    #
-    #     * The specral block starts with new line containing Nl_obs, index_Best_SSP,
-    #      and i_SaveBestSingleCompFit at
-    #           64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 10
-    #     * The l_obs , f_obs , f_syn , f_wei , Best_f_SSP info has Nl_obs entries, running from
-    #          n1 = 64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 11
-    #         n2 = n1 + Nl_obs -1
-    #
-    #     * The FIRc/QHRc/PHOc-related ouput is given at the end of the file, and
-    #     I still have to implement their reading here!
+    #TODO: Change the way tables are built to improve readability.
+
+# ElCid@Sanchica - 13/Feb/2012
+#
+# --------------------------------------------------------------------
+#          Some notes on the structure of STARLIGHT output files
+# --------------------------------------------------------------------
+#
+#  Considering the 1st line to be number 1 (ATT: **subtract** 1 in python!!):
+#      * The pop-vector block starts at line 64 and has N_base entries from n1 to n2:
+#         n1 = 64
+#         n2 = n1 + N_base - 1
+#
+#     * The Average & Chains light fractions block starts at line 64 + N_base + 5 and has N_par entries
+#         n1 = 64 + N_base + 5
+#         n2 = n1 + N_par - 1, where N_par = N_base + 2 + N_exAV
+#     * then comes the chain-LAx-pop-vectors block, whose N_base elements go from
+#         n1 = 64 + N_base + 5 + N_par + 2
+#         n2 = n1 + N_base - 1
+#     * and the chain-mu_cor-pop-vectors block, whose N_base elements go from
+#          n1 = 64 + N_base + 5 + N_par + 2 + N_base + 2
+#         n2 = n1 + N_base - 1
+#     * The chain chi2's and masses are in lines
+#          64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 2, and
+#          64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 3, respectively,
+#          followed by 2 lines with v_0_before_EX0s and v_d_before_EX0s.
+#
+#     * The specral block starts with new line containing Nl_obs, index_Best_SSP,
+#      and i_SaveBestSingleCompFit at
+#           64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 10
+#     * The l_obs , f_obs , f_syn , f_wei , Best_f_SSP info has Nl_obs entries, running from
+#          n1 = 64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 11
+#         n2 = n1 + Nl_obs -1
 
     if not os.path.exists(filename):
         raise Exception('File not found: %s' % filename)
@@ -213,23 +212,9 @@ def read_output_file(filename):
         popAV_tot.append(float(data[i].split()[15]))
         popLAx.append(float(data[i].split()[16]))
 
-    # ATT: In my SM macros I fix PL-age & Z, and renormalize light fractions to 100%.
-    #      This could be done like this:
-    #          aux = np.array(popx)   ; popx   = np.array(100. * aux / aux.sum())
-    #          aux = np.array(popLAx) ; popLAx = np.array(100. * aux / aux.sum())
-    #      But I'm **NOT** doing this here since all this function does is to replicate the
-    #       STARLIGHT output to new python dictionary! Furthermore, renomrmalization may
-    #        be inconvenient to create luminosity x age 3D-CALIFA-images...
-
-    # ATT2: Ignoring Power-law fixes.
-    # OBS: PL have age = 0 in the Starlight output file:(
-    #      Here I change it so that age_PL = 5e5 yr... & Z_PL = solar
-    #      This is all obsolete anyway. The built-in PL is not used anymore.
-    # if (int(StarlightOut['iFitPowerLaw']) > 0):
-    #    print '@@> [Warning!] ...Fixing PL age & Z ...Why are u using PLs??'
-    #    popage_base][StarlightOut['N_base'] - 1] = 5e5
-    #    popZ_base[StarlightOut['N_base'] - 1]    = 0.02
-    cols = [popx,
+    #WARNING: Ignoring Power-law fixes.
+   
+   cols = [popx,
             popmu_ini,
             popmu_cor,
             popage_base,
@@ -547,7 +532,7 @@ def read_output_file(filename):
 
         names = ['lambda',
                  'frecomb',
-                 'logY_TOT',
+                 'logY_tot',
                  'YFrac2Model',
                  'ErrlogY',
                  'RangelogY',
@@ -621,7 +606,7 @@ def read_output_file(filename):
         names = ['lambda',
                  'q_lambda',
                  'logY_obs',
-                 'ModlogY',
+                 'logY_mod',
                  'chi2_Y',
                  ]
 
