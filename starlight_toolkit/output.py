@@ -55,6 +55,7 @@ def read_output_file(filename):
 
     if not os.path.exists(filename):
         raise Exception('File not found: %s' % filename)
+    
 
     if filename.endswith('.gz'):
         f = gzip.GzipFile(filename)
@@ -805,7 +806,7 @@ def read_output_file(filename):
             Y_Perc.append([float(x) for x in data[i].split()[6:]])
 
         cols = [Y_Perc]
-        names = [' Y_Perc']
+        names = ['Y_Perc']
         tables['PHO'] = Table(cols, names=names)
 
     return tables
