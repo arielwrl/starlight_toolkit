@@ -5,7 +5,6 @@ import numpy as np
 from astropy.table import Table
 
 
-
 def read_output_file(filename):
     '''
     Reads STARLIGHT output tables to a dictionary.
@@ -129,52 +128,57 @@ def read_output_file(filename):
     keywords['SN_normwin'] = float(data[31].split()[0])
     keywords['SNerr_snwin'] = float(data[32].split()[0])
     keywords['SNerr_normwin'] = float(data[33].split()[0])
-   
-    keywords['ETC_GlobalChi2ScaleFactor'] = float(data[34].split()[0])
-    keywords['FIR_GlobalChi2ScaleFactor'] = float(data[34].split()[1])
-    keywords['QHR_GlobalChi2ScaleFactor'] = float(data[34].split()[2])
-    keywords['PHO_GlobalChi2ScaleFactor'] = float(data[34].split()[3])
-        
+           
     # etc...
-    keywords['idum_orig'] = int(data[37].split()[0])
-    keywords['NOl_eff'] = int(data[38].split()[0])
-    keywords['Nl_eff'] = int(data[39].split()[0])
-    keywords['Ntot_clipped'] = int(data[40].split()[0])
-    keywords['clip_method'] = data[40].split()[1]
-    keywords['SNmax_threshold'] = float(data[40].split()[2])
-    keywords['Nglobal_steps'] = int(data[41].split()[0])
-    keywords['N_chains'] = int(data[42].split()[0])
-    keywords['NEX0s_base'] = int(data[43].split()[0])
-    keywords['iCLIPBUG_flag'] = int(data[44].split()[0])
-    keywords['i_RC_CRASH_FLAG'] = int(data[44].split()[1])
-    keywords['IsBurInOver_BurnIn'] = int(data[44].split()[2])
-    keywords['n_censored_weights'] = int(data[44].split()[3])
-    keywords['wei_nsig_threshold'] = float(data[44].split()[4])
-    keywords['wei_limit'] = float(data[44].split()[5])
-    keywords['idt_all'] = int(data[45].split()[0])
-    keywords['wdt_TotTime'] = float(data[45].split()[1])
-    keywords['wdt_UsrTime'] = float(data[45].split()[2])
-    keywords['wdt_SysTime'] = float(data[45].split()[3])
+    keywords['idum_orig'] = int(data[36].split()[0])
+    keywords['NOl_eff'] = int(data[37].split()[0])
+    keywords['Nl_eff'] = int(data[38].split()[0])
+    keywords['Ntot_clipped'] = int(data[39].split()[0])
+    keywords['clip_method']  = data[39].split()[1]
+    keywords['SNmax_threshold'] = float(data[39].split()[2])
+    keywords['Nglobal_steps'] = int(data[40].split()[0])
+    keywords['N_chains'] = int(data[41].split()[0])
+    keywords['NEX0s_base'] = int(data[42].split()[0])
+    keywords['iCLIPBUG_flag'] = int(data[43].split()[0])
+    keywords['i_RC_CRASH_FLAG'] = int(data[43].split()[1])
+    keywords['IsBurInOver_BurnIn'] = int(data[43].split()[2])
+    keywords['n_censored_weights'] = int(data[43].split()[3])
+    keywords['wei_nsig_threshold'] = float(data[43].split()[4])
+    keywords['wei_limit'] = float(data[43].split()[5])
+    keywords['idt_all'] = int(data[44].split()[0])
+    keywords['wdt_TotTime'] = float(data[44].split()[1])
+    keywords['wdt_UsrTime'] = float(data[44].split()[2])
+    keywords['wdt_SysTime'] = float(data[44].split()[3])
 
     ## Synthesis Results - Best model ##
-    keywords['chi2'] = float(data[49].split()[0])
+    keywords['chi2/N_eff'] = float(data[49].split()[0])
+    keywords['chi2'] = float(data[49].split()[1])
     keywords['adev'] = float(data[50].split()[0])
-    keywords['chi2_TOT'] = float(data[51].split()[0])
-    keywords['chi2_OPT'] = float(data[51].split()[1])
-    keywords['chi2_FIR'] = float(data[51].split()[2])
-    keywords['chi2_QHR'] = float(data[51].split()[3])
-    keywords['chi2_PHO'] = float(data[51].split()[4])
 
-    keywords['sum_x'] = float(data[52].split()[0])
-    keywords['Flux_tot'] = float(data[53].split()[0])
-    keywords['Mini_tot'] = float(data[54].split()[0])
-    keywords['Mcor_tot'] = float(data[55].split()[0])
+    keywords['sum_x'] = float(data[51].split()[0])
+    keywords['Lum_tot'] = float(data[52].split()[0])
+    keywords['Mini_tot'] = float(data[53].split()[0])
+    keywords['Mcor_tot'] = float(data[54].split()[0])
 
-    keywords['v0'] = float(data[57].split()[0])
-    keywords['vd'] = float(data[58].split()[0])
-    keywords['AV'] = float(data[59].split()[0])
+    keywords['v0'] = float(data[56].split()[0])
+    keywords['vd'] = float(data[57].split()[0])
+    keywords['AV'] = float(data[58].split()[0])
 
-
+    keywords['FIR_GlobalChi2ScaleFactor'] = float(data[61].split()[0])
+    keywords['QHR_GlobalChi2ScaleFactor'] = float(data[61].split()[1])
+    keywords['PHO_GlobalChi2ScaleFactor'] = float(data[61].split()[2])
+    keywords['ETC_GlobalChi2ScaleFactor'] = float(data[61].split()[3])
+    keywords['k_FIR'] = float(data[62].split()[0])
+    keywords['k_QHR'] = float(data[62].split()[1])
+    keywords['k_PHO'] = float(data[62].split()[2])
+    keywords['k_FIR*chi2_FIR/chi2_OPT'] = float(data[63].split()[0])
+    keywords['k_QHR*chi2_QHR/chi2_OPT'] = float(data[63].split()[1])
+    keywords['k_PHO*chi2_PHO/chi2_OPT'] = float(data[63].split()[2])
+    keywords['chi2_FIR'] = float(data[64].split()[0])
+    keywords['chi2_QHR'] = float(data[64].split()[1])
+    keywords['chi2_PHO'] = float(data[64].split()[2])
+    keywords['chi2_ETC'] = float(data[64].split()[3])
+    
     # Reset populations lists
     popx = []    # column 2
     popmu_ini = []    # column 3
@@ -194,7 +198,7 @@ def read_output_file(filename):
 
     # j     x_j(%)      Mini_j(%)     Mcor_j(%)     age_j(yr)     Z_j      (L/M)_j   exAV?  Mstars   component_j        new/Fe...    |  SSP_chi2r SSP_adev(%)   SSP_AV   SSP_x(%)    |  AV_tot   <LAx>_j(%)
     # Reads all these things (as lists) from lines _n1 to _n2
-    _n1 = 63
+    _n1 = 67
     _n2 = _n1 + keywords['N_base']
     for i in range(_n1, _n2):
         popx.append(float(data[i].split()[1]))
@@ -258,7 +262,7 @@ def read_output_file(filename):
     # Notice that Chain_Par contains AV (maybe more than 1!) and fn, as well
     # as x!
     N_par = keywords['N_base'] + 1 + keywords['N_exAV'] + 1
-    _n1 = 63 + keywords['N_base'] + 6 - 1
+    _n1 = 67 + keywords['N_base'] + 6 - 1
     _n2 = _n1 + N_par - 1 + 1
     Best_Par = []
     Ave_Par = []
@@ -271,7 +275,7 @@ def read_output_file(filename):
 
     # j Lambda-Averaged pop-vectors <LAx_*>_j: min, <> & last-chain-values for 0 ... N_chains chains (ave is 0'th chain!)
     # Reading chain LAx pop-vectors
-    _n1 = 63 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + 2
+    _n1 = 67 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + 2
     _n2 = _n1 + keywords['N_base']
     Best_LAx = []
     Ave_LAx = []
@@ -284,7 +288,7 @@ def read_output_file(filename):
 
     # j   Mcor_j: min, <> & last-chain-values for 0 ... N_chains chains (ave is 0'th chain!)
     # Reading chain mu_cor pop-vectors
-    _n1 = 63 + keywords['N_base'] + 6 - 1 + \
+    _n1 = 67 + keywords['N_base'] + 6 - 1 + \
         N_par - 1 + 1 + 2 + keywords['N_base'] + 2
     _n2 = _n1 + keywords['N_base']
     Best_mu_cor = []
@@ -298,7 +302,7 @@ def read_output_file(filename):
 
     # chi2/Nl_eff & Mass for min, <> & i_chain = 0 ...  N_chains chains (ave is 0'th chain!)
     # Read Chain chi2/Nl_eff's , as well as kinematics before_EX0s
-    i = 63 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + \
+    i = 67 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + \
         2 + keywords['N_base'] + 2 + keywords['N_base'] + 2
     keywords['best_chi2'] = np.float(data[i].split()[1])
     keywords['ave_chi2'] = np.float(data[i].split()[2])
@@ -329,7 +333,7 @@ def read_output_file(filename):
 
     # Synthetic spectrum (Best Model) ##l_obs f_obs f_syn wei Best_f_SSP
 
-    i = 63 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + \
+    i = 67 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + \
         2 + keywords['N_base'] + 2 + keywords['N_base'] + 2 + 8
     keywords['Nl_obs'] = int(data[i].split()[0])
     keywords['index_Best_SSP'] = int(data[i].split()[1])
@@ -369,7 +373,7 @@ def read_output_file(filename):
         N_par = keywords['N_base'] + 1 + keywords['N_exAV'] + 1
 
         # Skip spectra
-        i = 63 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + 2 + \
+        i = 67 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + 2 + \
             keywords['N_base'] + 2 + keywords['N_base'] + 2 + 8
         keywords['Nl_obs'] = int(data[i].split()[0])
         _n1 = i + 1
@@ -469,7 +473,7 @@ def read_output_file(filename):
         N_par = keywords['N_base'] + 1 + keywords['N_exAV'] + 1
 
         # Skip spectra
-        i = 63 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + 2 + \
+        i = 67 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + 2 + \
             keywords['N_base'] + 2 + keywords['N_base'] + 2 + 8
         keywords['Nl_obs'] = int(data[i].split()[0])
         _n1 = i + 1
@@ -649,7 +653,7 @@ def read_output_file(filename):
         N_par = keywords['N_base'] + 1 + keywords['N_exAV'] + 1
 
         # Skip spectra
-        i = 63 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + 2 + \
+        i = 67 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + 2 + \
             keywords['N_base'] + 2 + keywords['N_base'] + 2 + 8
         keywords['Nl_obs'] = int(data[i].split()[0])
         _n1 = i + 1
