@@ -10,7 +10,8 @@ Created on 05/30/2017
 import numpy as np
 import matplotlib.pyplot as plt
 from starlight_toolkit.output import read_output_file
-from starlight_toolkit.post_processing import calc_sfh
+import starlight_toolkit.post_processing as pp
+import matplotlib.gridspec as gridspec
 
 
 def plot_spec(out, ax=None, plot_obs=True, plot_error=True
@@ -35,9 +36,10 @@ def plot_spec(out, ax=None, plot_obs=True, plot_error=True
     if ax==None:
         ax = plt.gca()
 
+
     l_obs, f_obs, f_syn, f_wei = out['spectra']['l_obs'], \
     out['spectra']['f_obs'], out['spectra']['f_syn'], out['spectra']['f_wei']
-
+    
     w0 = out['spectra']['f_wei'] <= 0
 
     clipped = out['spectra']['f_wei'] == -1.0
@@ -60,8 +62,8 @@ def plot_spec(out, ax=None, plot_obs=True, plot_error=True
         ax.plot(l_obs, error, '--r', label=r'Error')
 
     if plot_labels==True:
-        ax.set_ylabel(r'$F_\lambda/F_{\lambda0}$', fontsize=15)
-        ax.set_xlabel(r'$\lambda\mathrm{[\AA]}$', fontsize=15)
+        ax.set_ylabel(r'$F_\lambda/F_{\lambda0}$', fontsize=11)
+        ax.set_xlabel(r'$\lambda\mathrm{[\AA]}$', fontsize=11)
 
     ax.plot(l_obs, f_syn, color=syn_color, lw=syn_lw, label=syn_label)
 
@@ -124,7 +126,7 @@ def plot_filter(filter_file, ax=None, filter_color='k'
     , linestyle=filter_ls)
 
 
-def plot_residual_spec(out, ax=None, residual_color='k'
+def plot_residual_spec(out, ax=None, residual_color='g'
 , plot_labels=True):
 
     if ax==None:
@@ -137,40 +139,123 @@ def plot_residual_spec(out, ax=None, residual_color='k'
 
     residual = np.ma.masked_array(data=(f_obs-f_syn)/f_syn, mask=w0)
 
-    ax.plot(l_obs, residual, lw=0.25, color=residual_color)
+    ax.plot(l_obs, residual, lw=0.5, color=residual_color)
+
+    x = np.linspace(l_obs[0], l_obs[-1])
+    y = np.zeros_like(x)
+
+    plt.plot(x, y, '--k')
 
     if plot_labels==True:
-        ax.set_xlabel(r'$\lambda[\mathrm{\AA}]$')
-        ax.set_ylabel(r'Residual Spectrum')
-        
+        ax.set_xlabel(r'$\lambda[\mathrm{\AA}]$', fontsize=11)
+        ax.set_ylabel(r'Residual', fontsize=11)
+    
 
 def plot_fit_complete(out):
 
-    p1 = plt.subplot2grid((5,2), (0, 0), colspan=2, rowspan=2)
-    plot_spec(out,ax=p1)
+
+    fig = plt.figure(figsize=(8.5,7))
+
+    #Plot spectrum:
+    
+    gs1 = gridspec.GridSpec(3, 3)
+    gs1.update(bottom=0.47, top=0.96, hspace=0.0, right=0.96)
+    
+    p1 = plt.subplot(gs1[0:2,:])
+    
+    plot_spec(out, ax=p1, plot_labels=False)
+    p1.set_ylabel(r'$F_\lambda/F_{\lambda0}$', fontsize=11)
+    plt.tick_params(axis='x', bottom='off'
+    , labelbottom='off')
+
+    p1.set_ylim(0, 2)
+
     
     #Create legend:
-    p1.legend()
+    p1.legend(frameon=False, fontsize=9)
 
+    #Plot residual spectrum:
+    p2 = plt.subplot(gs1[2, :], sharex=p1)
+    plot_residual_spec(out, ax=p2)
+    
+    p2.set_ylim(-0.15,0.15)
+    
+    #Calculating and plotting SFH:
+    age_base  = out['population']['popage_base']
+    Z_base    = out['population']['popZ_base']
+    popx      = out['population']['popx']
+    popmu     = out['population']['popmu_cor']
 
-    p2 = plt.subplot2grid((5,2), (2, 0), rowspan=1)
-    plot_residual_spec(out)
+    agevec, sfh, csfh = pp.calc_sfh_x(age_base, popx)    
     
-    p2.set_ylim(-0.1,0.1)
+    gs2 = gridspec.GridSpec(1, 2)
+    gs2.update(top=0.38, bottom=0.08, hspace=0.05, right=0.96, wspace=0.02)
     
-    #Calculating SFH and ages:
-    ages   = out['population']['popage_base']
-    popmu  = out['population']['popmu_cor']
-    popx   = out['population']['popx']
+    p3 = plt.subplot(gs2[0, 0])
 
-    agevec, sfh, csfh = calc_sfh(ages, popmu)    
-    
-    p3 = plt.subplot2grid((5,2), (0, 4), rowspan=1)
-    
     p3.plot(np.log10(agevec), csfh)
 
     p3.set_xlabel(r'$\log t_*$')
-    p3.set_ylabel(r'$\mu_c$')
-
+    p3.set_ylabel(r'$x_c$')
     
+    p3.set_ylim(0, 110)
+    
+    #Annotations:
+    p4 = plt.subplot(gs2[0, 1])
+    
+    #Removing ticks:
+    plt.tick_params(axis='both', bottom='off'
+    , top='off', labelbottom='off', right='off', left='off'
+    , labelleft='off')
+    
+    #Calculating mass and light weighted ages:
+    atflux = pp.calc_atflux(age_base, popx)
+    atmass = pp.calc_atmass(age_base, popmu)
+    Zflux  = pp.calc_meanZflux(Z_base, popx, 0.02)
+    Zmass  = pp.calc_meanZmass(Z_base, popmu, 0.02)
+    
+    #Annotating stuff:
+    
+    annotation_size = 9
+
+    p4.annotate(r'$A_V$ = %0.2f mag'%out['keywords']['AV'], \
+    (0.02, 0.025), textcoords='axes fraction', size=annotation_size)
+    p4.annotate(r'$\log \left(M_*\right) = $ %0.2f'%np.log10(out['keywords']['Mcor_tot']),\
+    (0.02, 0.15), textcoords='axes fraction', size=annotation_size)
+    p4.annotate(r'$\sigma_*$ = %0.2f'%out['keywords']['vd'], \
+    (0.02, 0.3), textcoords='axes fraction', size=annotation_size)
+    p4.annotate(r'$N_{\mathrm{Clipped}}$ = %i'%out['keywords']['Ntot_clipped'], \
+    (0.02, 0.45), textcoords='axes fraction', size=annotation_size)
+    p4.annotate(r'$\chi^2/N_{eff}$ = %0.2f'%out['keywords']['chi2/N_eff'], \
+    (0.02, 0.6), textcoords='axes fraction', size=annotation_size)
+    p4.annotate(r'$\chi^2_{\mathrm{TOT}}$ = %0.2f'%out['keywords']['chi2'], \
+    (0.02, 0.75), textcoords='axes fraction', size=annotation_size)
+    p4.annotate(r'$\overline{\Delta}$ = %0.2f %%'%out['keywords']['adev'], \
+    (0.02, 0.9), textcoords='axes fraction', size=annotation_size)
+    
+
+    p4.annotate(r'$\langle \log Z_* \rangle_M = $ %0.2f'%Zmass, \
+    (0.38, 0.45), textcoords='axes fraction', size=annotation_size)
+    p4.annotate(r'$\langle \log Z_* \rangle_L = $ %0.2f'%Zflux, \
+    (0.38, 0.6), textcoords='axes fraction', size=annotation_size)
+    p4.annotate(r'$\langle \log t_* \rangle_M = $ %0.2f'%atmass, \
+    (0.38, 0.75), textcoords='axes fraction', size=annotation_size)
+    p4.annotate(r'$\langle \log t_* \rangle_L = $ %0.2f'%atflux, \
+    (0.38, 0.9), textcoords='axes fraction', size=annotation_size)
+    
+
+
+#additional notes: lambda0, ESM, S/N, ELR => obs and mod
+    
+    
+
+def plot_fit_complete_from_file(out_file):
+    try:
+        out = read_output_file(out_file)
+    except (ValueError, IndexError, Exception):
+        print "Check if the output file is ok."
+
+    #Plotting spectra:
+    plot_fit_complete(out)
+
     
