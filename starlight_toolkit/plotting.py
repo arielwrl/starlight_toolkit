@@ -176,10 +176,10 @@ def plot_residual_spec(out, ax=None, residual_color='g'
         ax.set_ylabel(r'Residual', fontsize=10)
     
 
-def plot_fit_complete(out, title=None):
+def plot_fit_complete(out, title=None, figsize=(7.75,6.5), out_fig=None, out_format=None, out_dpi=None):
 
 
-    fig = plt.figure(figsize=(7.5,6.25))
+    fig = plt.figure(figsize=figsize)
 
     #Plot spectrum:
     
@@ -275,62 +275,66 @@ def plot_fit_complete(out, title=None):
     
 
     p4.annotate(r'$\delta A_V$ = %0.2f'%out['keywords']['exAv'], \
-    (0.3, 0.025), textcoords='axes fraction', size=annotation_size)
+    (0.27, 0.025), textcoords='axes fraction', size=annotation_size)
     p4.annotate(r'$A_V$ = %0.2f'%out['keywords']['Av'], \
-    (0.3, 0.15), textcoords='axes fraction', size=annotation_size)
+    (0.27, 0.15), textcoords='axes fraction', size=annotation_size)
     p4.annotate(r'$S/N=$ %0.2f'%out['keywords']['SN_snwin'], \
-    (0.3, 0.3), textcoords='axes fraction', size=annotation_size)
+    (0.27, 0.3), textcoords='axes fraction', size=annotation_size)
     p4.annotate(r'$\langle \log Z_* \rangle_M=$%0.2f'%Zmass, \
-    (0.3, 0.45), textcoords='axes fraction', size=annotation_size)
+    (0.27, 0.45), textcoords='axes fraction', size=annotation_size)
     p4.annotate(r'$\langle \log Z_* \rangle_L=$%0.2f'%Zflux, \
-    (0.3, 0.6), textcoords='axes fraction', size=annotation_size)
+    (0.27, 0.6), textcoords='axes fraction', size=annotation_size)
     p4.annotate(r'$\langle \log t_* \rangle_M=$%0.2f'%atmass, \
-    (0.3, 0.75), textcoords='axes fraction', size=annotation_size)
+    (0.27, 0.75), textcoords='axes fraction', size=annotation_size)
     p4.annotate(r'$\langle \log t_* \rangle_L=$%0.2f'%atflux, \
-    (0.3, 0.9), textcoords='axes fraction', size=annotation_size)
+    (0.27, 0.9), textcoords='axes fraction', size=annotation_size)
     
     
 
     if out['keywords']['IsELROn']==1:
-        p4.annotate(r'$\chi^2_{ELR}=%0.2f, Av_{neb}=%0.2f$'%(out['keywords']['chi2_ELR'],out['keywords']['ELR_AV_neb']), \
-        (0.6, 0.45), textcoords='axes fraction', size=annotation_size)
+        p4.annotate(r'$\epsilon^{eff}_R=%1.2e, Av_{neb}=%0.2f$'%(out['keywords']['ELR_Err_logR']/np.sqrt(out['keywords']['k_QHR']),out['keywords']['ELR_AV_neb']), \
+        (0.55, 0.3), textcoords='axes fraction', size=annotation_size)
+        p4.annotate(r'$\logR_{obs}=%0.2f, \logR_{mod}=%0.2f$'%(out['keywords']['ELR_logR_obs'],out['keywords']['ELR_logR_mod']), \
+        (0.55, 0.45), textcoords='axes fraction', size=annotation_size)
     if out['keywords']['IsELROn']==-1:
-        p4.annotate('Predicting ELR', (0.6, 0.45), textcoords='axes fraction'
+        p4.annotate('Predicting ELR', (0.55, 0.45), textcoords='axes fraction'
         , size=annotation_size)
     if out['keywords']['IsELROn']==0:
-        p4.annotate('ELR off', (0.6, 0.45), textcoords='axes fraction', size=annotation_size)
+        p4.annotate('ELR off', (0.55, 0.45), textcoords='axes fraction', size=annotation_size)
     
     
     if out['keywords']['IsPHOcOn']==1:
         p4.annotate(r'$\chi^2_{PHO}=%0.2f, k_{PHO}=%0.2f$'%(out['keywords']['chi2_PHO'],out['keywords']['k_PHO']), \
-        (0.6, 0.6), textcoords='axes fraction', size=annotation_size)
+        (0.55, 0.6), textcoords='axes fraction', size=annotation_size)
     if out['keywords']['IsPHOcOn']==-1:
-        p4.annotate('Predicting PHO', (0.6, 0.6), textcoords='axes fraction'
+        p4.annotate('Predicting PHO', (0.55, 0.6), textcoords='axes fraction'
         , size=annotation_size)
     if out['keywords']['IsPHOcOn']==0:
-        p4.annotate('PHO off', (0.6, 0.6), textcoords='axes fraction', size=annotation_size)
+        p4.annotate('PHO off', (0.55, 0.6), textcoords='axes fraction', size=annotation_size)
         
 
     if out['keywords']['IsQHRcOn']==1:
         p4.annotate(r'$\chi^2_{QHR}=%0.2f, k_{QHR}=%0.2f$'%(out['keywords']['chi2_QHR'],out['keywords']['k_QHR']), \
-        (0.6, 0.75), textcoords='axes fraction', size=annotation_size)
+        (0.55, 0.75), textcoords='axes fraction', size=annotation_size)
     if out['keywords']['IsQHRcOn']==-1:
-        p4.annotate('Predicting QHR', (0.6, 0.75), textcoords='axes fraction'
+        p4.annotate('Predicting QHR', (0.55, 0.75), textcoords='axes fraction'
         , size=annotation_size)
     if out['keywords']['IsQHRcOn']==0:
-        p4.annotate('QHRc off', (0.6, 0.75), textcoords='axes fraction', size=annotation_size)
+        p4.annotate('QHRc off', (0.55, 0.75), textcoords='axes fraction', size=annotation_size)
 
 
     if out['keywords']['IsFIRcOn']==1:
         p4.annotate(r'$\chi^2_{FIR}=%0.2f, k^2_{FIR}=%0.2f$'%(out['keywords']['chi2_FIR'],out['keywords']['k_FIR']), \
-        (0.6, 0.9), textcoords='axes fraction', size=annotation_size)
+        (0.55, 0.9), textcoords='axes fraction', size=annotation_size)
     if out['keywords']['IsFIRcOn']==-1:
-        p4.annotate('Predicting FIR', (0.6, 0.9), textcoords='axes fraction'
+        p4.annotate('Predicting FIR', (0.55, 0.9), textcoords='axes fraction'
         , size=annotation_size)
     if out['keywords']['IsFIRcOn']==0:
-        p4.annotate('FIRc off', (0.6, 0.9), textcoords='axes fraction', size=annotation_size)
+        p4.annotate('FIRc off', (0.55, 0.9), textcoords='axes fraction', size=annotation_size)
 
 
+    if out_fig != None:
+        plt.savefig(out_fig, format=out_format, dpi=out_dpi)
 
 
 #additional notes: lambda0, ESM, ELR => obs and mod
