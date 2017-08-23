@@ -341,14 +341,16 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5), out_fig=None, out_for
     
     
 
-def plot_fit_complete_from_file(out_file, return_output_tables=False):
+def plot_fit_complete_from_file(out_file, return_output_tables=False
+                                , title=None, figsize=(7.75,6.5), out_fig=None, out_format=None, out_dpi=None):
     try:
         out = read_output_file(out_file)
     except (ValueError, IndexError, Exception):
         print "Check if the output file is ok."
 
     #Plotting spectra:
-    plot_fit_complete(out)
+    plot_fit_complete(out, title, figsize
+                      , out_fig, out_format, out_dpi)
     
     if return_output_tables==True:
         return out
