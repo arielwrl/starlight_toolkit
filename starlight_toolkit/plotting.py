@@ -296,17 +296,17 @@ def plot_fit_complete(out, title=None):
         p4.annotate(r'$\chi^2_{PHO}=%0.2f, k_{PHO}=%0.2f$'%(out['keywords']['chi2_PHO'],out['keywords']['k_PHO']), \
         (0.6, 0.6), textcoords='axes fraction', size=annotation_size)
     if out['keywords']['IsPHOcOn']==-1:
-        p4.annotate('Predicting PHO', (0.3, 0.6), textcoords='axes fraction'
+        p4.annotate('Predicting PHO', (0.6, 0.6), textcoords='axes fraction'
         , size=annotation_size)
     if out['keywords']['IsPHOcOn']==0:
-        p4.annotate('PHO off', (0.3, 0.6), textcoords='axes fraction', size=annotation_size)
+        p4.annotate('PHO off', (0.6, 0.6), textcoords='axes fraction', size=annotation_size)
         
 
     if out['keywords']['IsQHRcOn']==1:
         p4.annotate(r'$\chi^2_{QHR}=%0.2f, k^2_{QHR}=%0.2f$'%(out['keywords']['chi2_QHR'],out['keywords']['k_QHR']), \
         (0.6, 0.75), textcoords='axes fraction', size=annotation_size)
     if out['keywords']['IsQHRcOn']==-1:
-        p4.annotate('Predicting QHR', (0.75, 0.9), textcoords='axes fraction'
+        p4.annotate('Predicting QHR', (0.6, 0.9), textcoords='axes fraction'
         , size=annotation_size)
     if out['keywords']['IsQHRcOn']==0:
         p4.annotate('QHRc off', (0.6, 0.75), textcoords='axes fraction', size=annotation_size)
