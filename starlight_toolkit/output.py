@@ -571,9 +571,9 @@ def read_output_file(filename):
         keywords['ELR_Chi2ScaleFactor'] = float(data[_n3].split()[4])
         _n3 += 1
 
-        keywords['ELR_logRobs'] = float(data[_n3].split()[0])
-        keywords['ELR_ModlogR'] = float(data[_n3].split()[1])
-        keywords['ELR_chi2_ELR'] = float(data[_n3].split()[2])
+        keywords['ELR_logR_obs'] = float(data[_n3].split()[0])
+        keywords['ELR_logR_mod'] = float(data[_n3].split()[1])
+        keywords['chi2_ELR'] = float(data[_n3].split()[2])
         
         _n3 += 3
 

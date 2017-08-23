@@ -62,7 +62,7 @@ def plot_spec(out, ax=None, plot_obs=True, plot_error=True
         ax.plot(l_obs, error, '--r', label=r'$\epsilon_\lambda$')
 
     if plot_labels==True:
-        ax.set_ylabel(r'$F_\lambda/F_{\lambda0}$', fontsize=11)
+        ax.set_ylabel(r'$F_\lambda/F_{\lambda%i}$'%out['keywords']['l_norm'], fontsize=11)
         ax.set_xlabel(r'$\lambda\mathrm{[\AA]}$', fontsize=11)
     
     ax.plot(l_obs, f_syn, color=syn_color, lw=syn_lw, label=syn_label)
@@ -189,7 +189,7 @@ def plot_fit_complete(out, title=None):
     p1 = plt.subplot(gs1[0:2,:])
     
     plot_spec(out, ax=p1, plot_labels=False)
-    p1.set_ylabel(r'$F_\lambda/F_{\lambda0}$', fontsize=11)
+    p1.set_ylabel(r'$F_\lambda/F_{\lambda%i}$'%out['keywords']['l_norm'], fontsize=11)
     plt.tick_params(axis='x', bottom='off'
     , labelbottom='off')
 
@@ -290,6 +290,15 @@ def plot_fit_complete(out, title=None):
     (0.3, 0.9), textcoords='axes fraction', size=annotation_size)
     
     
+
+    if out['keywords']['IsELROn']==1:
+        p4.annotate(r'$\chi^2_{ELR}=%0.2f, Av_{neb}=%0.2f$'%(out['keywords']['chi2_ELR'],out['keywords']['ELR_AV_neb']), \
+        (0.6, 0.45), textcoords='axes fraction', size=annotation_size)
+    if out['keywords']['IsELROn']==-1:
+        p4.annotate('Predicting ELR', (0.6, 0.45), textcoords='axes fraction'
+        , size=annotation_size)
+    if out['keywords']['IsELROn']==0:
+        p4.annotate('ELR off', (0.6, 0.45), textcoords='axes fraction', size=annotation_size)
     
     
     if out['keywords']['IsPHOcOn']==1:
@@ -303,10 +312,10 @@ def plot_fit_complete(out, title=None):
         
 
     if out['keywords']['IsQHRcOn']==1:
-        p4.annotate(r'$\chi^2_{QHR}=%0.2f, k^2_{QHR}=%0.2f$'%(out['keywords']['chi2_QHR'],out['keywords']['k_QHR']), \
+        p4.annotate(r'$\chi^2_{QHR}=%0.2f, k_{QHR}=%0.2f$'%(out['keywords']['chi2_QHR'],out['keywords']['k_QHR']), \
         (0.6, 0.75), textcoords='axes fraction', size=annotation_size)
     if out['keywords']['IsQHRcOn']==-1:
-        p4.annotate('Predicting QHR', (0.6, 0.9), textcoords='axes fraction'
+        p4.annotate('Predicting QHR', (0.6, 0.75), textcoords='axes fraction'
         , size=annotation_size)
     if out['keywords']['IsQHRcOn']==0:
         p4.annotate('QHRc off', (0.6, 0.75), textcoords='axes fraction', size=annotation_size)
@@ -320,6 +329,8 @@ def plot_fit_complete(out, title=None):
         , size=annotation_size)
     if out['keywords']['IsFIRcOn']==0:
         p4.annotate('FIRc off', (0.6, 0.9), textcoords='axes fraction', size=annotation_size)
+
+
 
 
 #additional notes: lambda0, ESM, ELR => obs and mod
