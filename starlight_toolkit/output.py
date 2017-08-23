@@ -161,9 +161,10 @@ def read_output_file(filename):
     keywords['Mini_tot'] = float(data[53].split()[0])
     keywords['Mcor_tot'] = float(data[54].split()[0])
 
-    keywords['v0'] = float(data[56].split()[0])
-    keywords['vd'] = float(data[57].split()[0])
-    keywords['AV'] = float(data[58].split()[0])
+    keywords['v0']   = float(data[56].split()[0])
+    keywords['vd']   = float(data[57].split()[0])
+    keywords['Av']   = float(data[58].split()[0])
+    keywords['exAv'] = float(data[59].split()[0])
 
     keywords['FIR_GlobalChi2ScaleFactor'] = float(data[61].split()[0])
     keywords['QHR_GlobalChi2ScaleFactor'] = float(data[61].split()[1])
