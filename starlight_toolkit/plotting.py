@@ -176,7 +176,7 @@ def plot_residual_spec(out, ax=None, residual_color='g'
         ax.set_ylabel(r'Residual', fontsize=10)
     
 
-def plot_fit_complete(out, title=None, figsize=(7.75,6.5), out_fig=None, out_format=None, out_dpi=None):
+def plot_fit_complete(out, title=None, figsize=(7.75,6.5), out_fig_fname=None, out_format=None, out_dpi=None):
 
 
     fig = plt.figure(figsize=figsize)
@@ -333,8 +333,8 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5), out_fig=None, out_for
         p4.annotate('FIRc off', (0.55, 0.9), textcoords='axes fraction', size=annotation_size)
 
 
-    if out_fig != None:
-        plt.savefig(out_fig, format=out_format, dpi=out_dpi)
+    if out_fig_fname != None:
+        plt.savefig(out_fig_fname, format=out_format, dpi=out_dpi)
 
 
 #additional notes: lambda0, ESM, ELR => obs and mod
@@ -342,7 +342,7 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5), out_fig=None, out_for
     
 
 def plot_fit_complete_from_file(out_file, return_output_tables=False
-                                , title=None, figsize=(7.75,6.5), out_fig=None, out_format=None, out_dpi=None):
+                                , title=None, figsize=(7.75,6.5), out_fig_fname=None, out_format=None, out_dpi=None):
     try:
         out = read_output_file(out_file)
     except (ValueError, IndexError, Exception):
@@ -350,7 +350,7 @@ def plot_fit_complete_from_file(out_file, return_output_tables=False
 
     #Plotting spectra:
     plot_fit_complete(out, title, figsize
-                      , out_fig, out_format, out_dpi)
+                      , out_fig_fname, out_format, out_dpi)
     
     if return_output_tables==True:
         return out
