@@ -326,7 +326,7 @@ def plot_fit_complete(out, title=None):
     
     
 
-def plot_fit_complete_from_file(out_file):
+def plot_fit_complete_from_file(out_file, return_output_tables=False):
     try:
         out = read_output_file(out_file)
     except (ValueError, IndexError, Exception):
@@ -334,5 +334,8 @@ def plot_fit_complete_from_file(out_file):
 
     #Plotting spectra:
     plot_fit_complete(out)
+    
+    if return_output_tables==True:
+        return out
 
     
