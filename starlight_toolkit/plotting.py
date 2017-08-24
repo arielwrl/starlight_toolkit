@@ -362,7 +362,7 @@ def plot_fit_complete_from_file(out_file, return_output_tables=False
 
     #Plotting spectra:
     plot_fit_complete(out, title, figsize
-                      , out_fig_fname, out_format, out_dpi)
+                      , out_fig_fname, out_dpi)
     
     if return_output_tables==True:
         return out
