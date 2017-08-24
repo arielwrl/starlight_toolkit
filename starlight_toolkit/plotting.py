@@ -285,7 +285,7 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5), out_fig_fname=None, o
     (0.02, 0.9), size=annotation_size)
     
 
-    p4.annotate(r'$\delta A_V$ = %0.2f'%out['keywords']['exAv'], \
+    p4.annotate(r'$A_V^Y$ = %0.2f'%(out['keywords']['Av']+out['keywords']['exAv']), \
     (0.27, 0.025), size=annotation_size)
     p4.annotate(r'$A_V$ = %0.2f'%out['keywords']['Av'], \
     (0.27, 0.15), size=annotation_size)
