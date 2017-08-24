@@ -22,6 +22,17 @@ def calc_sfh_x(age_base, popx):
     csfh = np.cumsum(sfh[::-1])
     return agevec, sfh, csfh[::-1]
 
+def calc_QHRpop_x(age_base, popQHR):
+    #A vector with unique ages:
+    agevec = np.unique(age_base)
+    #The SFH:
+    QHRvec  = [np.sum(popQHR[age_base==agevec[i]]) for i in range(len(agevec))]
+    QHRvec  /= popQHR.sum() 
+    QHRvec *= 100
+    #The cumulative SFH:
+    cQHRvec = np.cumsum(QHRvec[::-1])
+    return cQHRvec[::-1]
+
 def calc_atflux(age_base, popx):
     return np.sum(np.log10(age_base) * popx)/popx.sum()
 
