@@ -165,7 +165,7 @@ def read_output_file(filename):
     keywords['vd']   = float(data[57].split()[0])
     keywords['Av']   = float(data[58].split()[0])
     keywords['exAv'] = float(data[59].split()[0])
-    keywords['x(exAV>0)'] = float(data[59].split()[-1][0:5])
+    keywords['x(exAV>0)'] = float(data[59].split()[-1][0:-1])
 
     keywords['FIR_GlobalChi2ScaleFactor'] = float(data[61].split()[0])
     keywords['QHR_GlobalChi2ScaleFactor'] = float(data[61].split()[1])
