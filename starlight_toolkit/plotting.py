@@ -349,6 +349,7 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5), out_fig_fname=None, o
 
     if out_fig_fname != None:
         plt.savefig(out_fig_fname, dpi=out_dpi)
+        plt.close()
 
     
     
