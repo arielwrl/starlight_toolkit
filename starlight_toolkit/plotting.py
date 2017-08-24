@@ -341,7 +341,7 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5), out_fig_fname=None, o
         p4.annotate(r'$\chi^2_{FIR}=%0.2f, k^2_{FIR}=%0.2f$'%(out['keywords']['chi2_FIR'],out['keywords']['k_FIR']), \
         (0.55, 0.75), size=annotation_size)
     if out['keywords']['IsFIRcOn']==-1:
-        p4.annotate(r'$\logL_{FIR}^{mod}=%0.2f, \frac{\logL_{FIR}}{\logL_{Bol}}=%0.2f$'%(out['keywords']['FIR_logLFIR_mod'],out['keywords']['FIR_BOL_Ratio'])
+        p4.annotate(r'$\logL_{FIR}^{mod}=%0.2f, FIR/BOL=%0.2f$'%(out['keywords']['FIR_logLFIR_mod'],out['keywords']['FIR_BOL_Ratio'])
                     , (0.55, 0.75), size=annotation_size)
     if out['keywords']['IsFIRcOn']==0:
         p4.annotate('FIRc off', (0.55, 0.75), size=annotation_size)
