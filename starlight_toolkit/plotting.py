@@ -198,9 +198,9 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5)
 
     p1.set_ylim(0, 2)
 
-
+    dflt_title = '%s - idt_all:%d s' % (out['keywords']['arq_synt'], out['keywords']['idt_all'])
     if title == None:
-        p1.set_title(out['keywords']['arq_synt'])
+        p1.set_title(dflt_title)
     else: 
         p1.set_title(title)
     
