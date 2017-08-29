@@ -82,15 +82,15 @@ def plot_spec(out, ax=None, plot_obs=True, plot_error=True
         wl_pho = out['PHO']['MeanLamb']/(1+z)
         
         #Plotting observed photometry:
-        ax.plot(wl_pho, flux_obs, 'ok', markersize=3
+        ax.plot(wl_pho, flux_obs, 'ok', markersize=4
         , label=r'$O_{\mathrm{PHO}}$')
 
         #Plotting modeled photometry:
-        ax.plot(wl_pho, flux_mod, 'oc', markersize=3
-        , label=r'$M_{\mathrm{PHO}}$')
+        ax.plot(wl_pho, flux_mod, 'oc', markersize=4
+        , label=r'$M_{\mathrm{PHO}}$', zorder=15)
 
 
-    ax.set_ylim(0, 1.3 * np.max(f_syn))
+    ax.set_ylim(0, 1.5 * np.max(f_syn))
     ax.set_xlim(out['keywords']['l_ini'],out['keywords']['l_fin'])
     
     
@@ -177,7 +177,8 @@ def plot_residual_spec(out, ax=None, residual_color='g'
     
 
 def plot_fit_complete(out, title=None, figsize=(7.75,6.5)
-                      , out_fig_fname=None, out_dpi=None):
+                      , out_fig_fname=None, out_dpi=None
+                      , legend_loc='best'):
 
 
     fig = plt.figure(figsize=figsize)
@@ -204,7 +205,7 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5)
         p1.set_title(title)
     
     #Create legend:
-    p1.legend(frameon=False, fontsize=9, ncol=2)
+    p1.legend(frameon=False, fontsize=9, ncol=2, loc=legend_loc)
 
     #Plot residual spectrum:
     p2 = plt.subplot(gs1[2, :], sharex=p1)
@@ -293,65 +294,73 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5)
     (0.27, 0.15), size=annotation_size)
     p4.annotate(r'$S/N=$ %0.2f'%out['keywords']['SN_snwin'], \
     (0.27, 0.3), size=annotation_size)
-    p4.annotate(r'$\langle \log Z_* \rangle_M=$%0.2f'%Zmass, \
+    p4.annotate(r'$\langle \log Z_{*} \rangle_M=$%0.2f'%Zmass, \
     (0.27, 0.45), size=annotation_size)
-    p4.annotate(r'$\langle \log Z_* \rangle_L=$%0.2f'%Zflux, \
+    p4.annotate(r'$\langle \log Z_{*} \rangle_L=$%0.2f'%Zflux, \
     (0.27, 0.6), size=annotation_size)
-    p4.annotate(r'$\langle \log t_* \rangle_M=$%0.2f'%atmass, \
+    p4.annotate(r'$\langle \log t_{*} \rangle_M=$%0.2f'%atmass, \
     (0.27, 0.75), size=annotation_size)
-    p4.annotate(r'$\langle \log t_* \rangle_L=$%0.2f'%atflux, \
+    p4.annotate(r'$\langle \log t_{*} \rangle_L=$%0.2f'%atflux, \
     (0.27, 0.9), size=annotation_size)
     
 
     p4.annotate('ESM=%s'%out['keywords']['ETC_ESM'], \
-    (0.55, 0.9), size=annotation_size)
+    (0.51, 0.9), size=annotation_size)
         
     
     if out['keywords']['IsPHOcOn']==1:
         p4.annotate(r'$\chi^2_{PHO}=%0.2f, k_{PHO}=%0.2f$'\
         %(out['keywords']['chi2_PHO'],out['keywords']['k_PHO']), \
-        (0.55, 0.45), size=annotation_size)
+        (0.51, 0.45), size=annotation_size)
     if out['keywords']['IsPHOcOn']==-1:
-        p4.annotate('Predicting PHO', (0.55, 0.45), size=annotation_size)
+        p4.annotate('Predicting PHO', (0.51, 0.45), size=annotation_size)
     if out['keywords']['IsPHOcOn']==0:
-        p4.annotate('PHO off', (0.55, 0.45), size=annotation_size)
+        p4.annotate('PHO off', (0.51, 0.45), size=annotation_size)
         
 
     if out['keywords']['IsQHRcOn']==1:
         p4.annotate(r'$\chi^2_{QHR}=%0.2f, k_{QHR}=%0.2f$'\
         %(out['keywords']['chi2_QHR'],out['keywords']['k_QHR']), \
-        (0.55, 0.6), size=annotation_size)
+        (0.51, 0.6), size=annotation_size)
         if out['keywords']['IsELROn']==1:
-            p4.annotate(r'$x(exAV>0)$ = %0.2f%%'%out['keywords']['x(exAV>0)'], \
-            (0.55, 0.025), size=annotation_size)
-            p4.annotate(r'$\epsilon^{eff}_R=%1.2e, Av_{neb}=%0.2f$'\
-            %(out['ELR']['Err_logR']/np.sqrt(out['keywords']['k_QHR']),\
-            out['keywords']['Av_neb']),(0.55, 0.15), size=annotation_size)
-            p4.annotate(r'$\logR_{obs}=%0.2f, \logR_{mod}=%0.2f$'\
-            %(out['ELR']['logR_obs'],out['ELR']['logR_mod']), \
-            (0.55, 0.3), size=annotation_size)
+            exHalpha = np.sum(out['popQHR']['Y_Perc_Line0'][out['population']['popexAV_flag']==1])
+            epsilonQ = out['ELR']['Err_logR']/np.sqrt(out['keywords']['k_QHR'])
+            
+            p4.annotate(r'$x(A_V^Y) = {} \%, x(A_V^Y)H_\alpha$ = {} %'.format(out['keywords']['x(exAV>0)'], exHalpha), \
+            (0.51, 0.15), size=annotation_size)
+            
+            p4.annotate(r'$Av_{neb}=%0.2f$'\
+            %(out['keywords']['Av_neb']),(0.51, 0.025), size=annotation_size)
+            
+            p4.annotate(r'$\Delta\logR=%0.3f, \epsilon^{eff}_R=%1.2e$'\
+            %(out['ELR']['logR_obs']-out['ELR']['logR_mod'], epsilonQ), \
+            (0.51, 0.3), size=annotation_size)
+            
         if out['keywords']['IsELROn']==-1:
-            p4.annotate('Predicting ELR', (0.55, 0.3), size=annotation_size)
+            p4.annotate('Predicting ELR', (0.51, 0.3), size=annotation_size)
         if out['keywords']['IsELROn']==0:
-            p4.annotate('ELR off', (0.55, 0.3), size=annotation_size)
+            p4.annotate('ELR off', (0.51, 0.3), size=annotation_size)
+
+
+
 
 
     if out['keywords']['IsQHRcOn']==-1:
-        p4.annotate('Predicting QHR', (0.55, 0.6), size=annotation_size)
+        p4.annotate('Predicting QHR', (0.51, 0.6), size=annotation_size)
     if out['keywords']['IsQHRcOn']==0:
-        p4.annotate('QHRc off', (0.55, 0.6), size=annotation_size)
+        p4.annotate('QHRc off', (0.51, 0.6), size=annotation_size)
 
 
     if out['keywords']['IsFIRcOn']==1:
         p4.annotate(r'$\chi^2_{FIR}=%0.2f, k^2_{FIR}=%0.2f$'\
         %(out['keywords']['chi2_FIR'],out['keywords']['k_FIR']), \
-        (0.55, 0.75), size=annotation_size)
+        (0.51, 0.75), size=annotation_size)
     if out['keywords']['IsFIRcOn']==-1:
         p4.annotate(r'$\logL_{FIR}^{mod}=%0.2f, FIR/BOL=%0.2f$'\
         %(out['keywords']['FIR_logLFIR_mod'],out['keywords']['FIR_BOL_Ratio'])
-        , (0.55, 0.75), size=annotation_size)
+        , (0.51, 0.75), size=annotation_size)
     if out['keywords']['IsFIRcOn']==0:
-        p4.annotate('FIRc off', (0.55, 0.75), size=annotation_size)
+        p4.annotate('FIRc off', (0.51, 0.75), size=annotation_size)
 
 
     if out_fig_fname != None:
@@ -362,16 +371,18 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5)
     
 
 def plot_fit_complete_from_file(out_file, return_output_tables=False
-, title=None, figsize=(7.75,6.5), out_fig_fname=None, out_dpi=None):
+, title=None, figsize=(7.75,6.5), out_fig_fname=None, out_dpi=None
+, legend_loc='Best'):
     try:
         out = r.read_output_file(out_file)
            #Plotting spectra:
         plot_fit_complete(out, title, figsize
-                      , out_fig_fname, out_dpi)
+                      , out_fig_fname, out_dpi
+                      , legend_loc=legend_loc)
     
         if return_output_tables==True:
             return out
-
+    
         
     except (ValueError, IndexError, Exception):
         print "Check if the output file is ok."
