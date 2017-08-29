@@ -372,7 +372,7 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5)
 
 def plot_fit_complete_from_file(out_file, return_output_tables=False
 , title=None, figsize=(7.75,6.5), out_fig_fname=None, out_dpi=None
-, legend_loc='Best'):
+, legend_loc='best'):
     try:
         out = r.read_output_file(out_file)
            #Plotting spectra:
