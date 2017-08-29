@@ -9,7 +9,7 @@ Created on 05/30/2017
 
 import numpy as np
 import matplotlib.pyplot as plt
-from starlight_toolkit.output import read_output_file
+import starlight_toolkit.output as r
 import starlight_toolkit.post_processing as pp
 import matplotlib.gridspec as gridspec
 
@@ -68,8 +68,8 @@ def plot_spec(out, ax=None, plot_obs=True, plot_error=True
     ax.plot(l_obs, f_syn, color=syn_color, lw=syn_lw, label=syn_label, zorder=5)
 
     if out['keywords']['IsPHOcOn']==1:
-        flux_mod = out['PHO_mod']['fY_mod']/out['keywords']['fobs_norm']
-        flux_obs = out['PHO_mod']['fY_obs']/out['keywords']['fobs_norm']
+        flux_mod = out['PHO']['fY_mod']/out['keywords']['fobs_norm']
+        flux_obs = out['PHO']['fY_obs']/out['keywords']['fobs_norm']
 
         #Reading redshift from output file:
         z = out['keywords']['PHO_Redshift']
@@ -79,7 +79,7 @@ def plot_spec(out, ax=None, plot_obs=True, plot_error=True
         flux_obs *= (1+z)
 
         #Reading wavelengths and shifting them to the rest-frame
-        wl_pho = out['PHO_mod']['MeanLamb']/(1+z)
+        wl_pho = out['PHO']['MeanLamb']/(1+z)
         
         #Plotting observed photometry:
         ax.plot(wl_pho, flux_obs, 'ok', markersize=3
@@ -120,7 +120,7 @@ def plot_spec_from_file(out_file):
 
     #Reading output file (a bit dirty because we have to handle exceptions):
     try:
-        out = read_output_file(out_file)
+        out = r.read_output_file(out_file)
     except (ValueError, IndexError, Exception):
         print "Check if the output file is ok."
 
@@ -176,7 +176,8 @@ def plot_residual_spec(out, ax=None, residual_color='g'
         ax.set_ylabel(r'Residual', fontsize=10)
     
 
-def plot_fit_complete(out, title=None, figsize=(7.75,6.5), out_fig_fname=None, out_dpi=None):
+def plot_fit_complete(out, title=None, figsize=(7.75,6.5)
+                      , out_fig_fname=None, out_dpi=None):
 
 
     fig = plt.figure(figsize=figsize)
@@ -189,7 +190,8 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5), out_fig_fname=None, o
     p1 = plt.subplot(gs1[0:2,:])
     
     plot_spec(out, ax=p1, plot_labels=False)
-    p1.set_ylabel(r'$F_\lambda/F_{\lambda%i}$'%out['keywords']['l_norm'], fontsize=11)
+    p1.set_ylabel(r'$F_\lambda/F_{\lambda%i}$'%out['keywords']['l_norm']
+    , fontsize=11)
     plt.tick_params(axis='x', bottom='off'
     , labelbottom='off')
 
@@ -234,7 +236,7 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5), out_fig_fname=None, o
     p3.plot(np.log10(agevec), csfh_mu, '.r')
     
     if out['keywords']['IsQHRcOn']==1:
-        popQHR  = out['QHR']['QHeff_Perc']
+        popQHR  = out['popQHR']['QHeff_Perc']
         cQHRvec = pp.calc_QHRpop_x(age_base, popQHR)
         p3.plot(np.log10(agevec), cQHRvec, color='m', label=r'$Q_H$')
         p3.plot(np.log10(agevec), cQHRvec, '.m')
@@ -305,22 +307,9 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5), out_fig_fname=None, o
     (0.55, 0.9), size=annotation_size)
         
     
-
-    if out['keywords']['IsELROn']==1:
-        p4.annotate(r'$x(exAV>0)$ = %0.2f%%'%out['keywords']['x(exAV>0)'], \
-        (0.55, 0.025), size=annotation_size)
-        p4.annotate(r'$\epsilon^{eff}_R=%1.2e, Av_{neb}=%0.2f$'%(out['keywords']['ELR_Err_logR']/np.sqrt(out['keywords']['k_QHR']),out['keywords']['ELR_AV_neb']), \
-        (0.55, 0.15), size=annotation_size)
-        p4.annotate(r'$\logR_{obs}=%0.2f, \logR_{mod}=%0.2f$'%(out['keywords']['ELR_logR_obs'],out['keywords']['ELR_logR_mod']), \
-        (0.55, 0.3), size=annotation_size)
-    if out['keywords']['IsELROn']==-1:
-        p4.annotate('Predicting ELR', (0.55, 0.3), size=annotation_size)
-    if out['keywords']['IsELROn']==0:
-        p4.annotate('ELR off', (0.55, 0.3), size=annotation_size)
-    
-    
     if out['keywords']['IsPHOcOn']==1:
-        p4.annotate(r'$\chi^2_{PHO}=%0.2f, k_{PHO}=%0.2f$'%(out['keywords']['chi2_PHO'],out['keywords']['k_PHO']), \
+        p4.annotate(r'$\chi^2_{PHO}=%0.2f, k_{PHO}=%0.2f$'\
+        %(out['keywords']['chi2_PHO'],out['keywords']['k_PHO']), \
         (0.55, 0.45), size=annotation_size)
     if out['keywords']['IsPHOcOn']==-1:
         p4.annotate('Predicting PHO', (0.55, 0.45), size=annotation_size)
@@ -329,8 +318,24 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5), out_fig_fname=None, o
         
 
     if out['keywords']['IsQHRcOn']==1:
-        p4.annotate(r'$\chi^2_{QHR}=%0.2f, k_{QHR}=%0.2f$'%(out['keywords']['chi2_QHR'],out['keywords']['k_QHR']), \
+        p4.annotate(r'$\chi^2_{QHR}=%0.2f, k_{QHR}=%0.2f$'\
+        %(out['keywords']['chi2_QHR'],out['keywords']['k_QHR']), \
         (0.55, 0.6), size=annotation_size)
+        if out['keywords']['IsELROn']==1:
+            p4.annotate(r'$x(exAV>0)$ = %0.2f%%'%out['keywords']['x(exAV>0)'], \
+            (0.55, 0.025), size=annotation_size)
+            p4.annotate(r'$\epsilon^{eff}_R=%1.2e, Av_{neb}=%0.2f$'\
+            %(out['ELR']['Err_logR']/np.sqrt(out['keywords']['k_QHR']),\
+            out['keywords']['Av_neb']),(0.55, 0.15), size=annotation_size)
+            p4.annotate(r'$\logR_{obs}=%0.2f, \logR_{mod}=%0.2f$'\
+            %(out['ELR']['logR_obs'],out['ELR']['logR_mod']), \
+            (0.55, 0.3), size=annotation_size)
+        if out['keywords']['IsELROn']==-1:
+            p4.annotate('Predicting ELR', (0.55, 0.3), size=annotation_size)
+        if out['keywords']['IsELROn']==0:
+            p4.annotate('ELR off', (0.55, 0.3), size=annotation_size)
+
+
     if out['keywords']['IsQHRcOn']==-1:
         p4.annotate('Predicting QHR', (0.55, 0.6), size=annotation_size)
     if out['keywords']['IsQHRcOn']==0:
@@ -338,11 +343,13 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5), out_fig_fname=None, o
 
 
     if out['keywords']['IsFIRcOn']==1:
-        p4.annotate(r'$\chi^2_{FIR}=%0.2f, k^2_{FIR}=%0.2f$'%(out['keywords']['chi2_FIR'],out['keywords']['k_FIR']), \
+        p4.annotate(r'$\chi^2_{FIR}=%0.2f, k^2_{FIR}=%0.2f$'\
+        %(out['keywords']['chi2_FIR'],out['keywords']['k_FIR']), \
         (0.55, 0.75), size=annotation_size)
     if out['keywords']['IsFIRcOn']==-1:
-        p4.annotate(r'$\logL_{FIR}^{mod}=%0.2f, FIR/BOL=%0.2f$'%(out['keywords']['FIR_logLFIR_mod'],out['keywords']['FIR_BOL_Ratio'])
-                    , (0.55, 0.75), size=annotation_size)
+        p4.annotate(r'$\logL_{FIR}^{mod}=%0.2f, FIR/BOL=%0.2f$'\
+        %(out['keywords']['FIR_logLFIR_mod'],out['keywords']['FIR_BOL_Ratio'])
+        , (0.55, 0.75), size=annotation_size)
     if out['keywords']['IsFIRcOn']==0:
         p4.annotate('FIRc off', (0.55, 0.75), size=annotation_size)
 
@@ -357,15 +364,17 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5), out_fig_fname=None, o
 def plot_fit_complete_from_file(out_file, return_output_tables=False
 , title=None, figsize=(7.75,6.5), out_fig_fname=None, out_dpi=None):
     try:
-        out = read_output_file(out_file)
+        out = r.read_output_file(out_file)
+           #Plotting spectra:
+        plot_fit_complete(out, title, figsize
+                      , out_fig_fname, out_dpi)
+    
+        if return_output_tables==True:
+            return out
+
+        
     except (ValueError, IndexError, Exception):
         print "Check if the output file is ok."
 
-    #Plotting spectra:
-    plot_fit_complete(out, title, figsize
-                      , out_fig_fname, out_dpi)
-    
-    if return_output_tables==True:
-        return out
 
     

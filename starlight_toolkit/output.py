@@ -5,7 +5,7 @@ import numpy as np
 from astropy.table import Table
 
 
-def read_output_file(filename):
+def read_output_file(filename, read_chains=False):
     '''
     Reads STARLIGHT output tables to a dictionary.
 
@@ -254,83 +254,85 @@ def read_output_file(filename):
     
     tables['population'] = Table(cols, names=names)
 
-    #--------------------------------------------------------------------
-    # Read chain-related info (in arrays!)
-    # ATT: The average solution is counted as an extra chain entry - the 1st one (Chain_*[0])!
-    #--------------------------------------------------------------------
-    ## Synthesis Results - Average & Chains ##
+    if read_chains == True:
+        #--------------------------------------------------------------------
+        # Read chain-related info (in arrays!)
+        # ATT: The average solution is counted as an extra chain entry - the 1st one (Chain_*[0])!
+        #--------------------------------------------------------------------
+        ## Synthesis Results - Average & Chains ##
 
-    # j    par_j: min, <> & last-chain-values for 0 ... N_chains chains (ave is 0'th chain!)
-    # Reading chain par-vector (light fractions at l_norm, + extinctions and etc)
-    # Notice that Chain_Par contains AV (maybe more than 1!) and fn, as well
-    # as x!
-    N_par = keywords['N_base'] + 1 + keywords['N_exAV'] + 1
-    _n1 = 67 + keywords['N_base'] + 6 - 1
-    _n2 = _n1 + N_par - 1 + 1
-    Best_Par = []
-    Ave_Par = []
-    Chain_Par = []
-    for unused, i in enumerate(range(_n1, _n2)):
-        Best_Par.append(np.float(data[i].split()[1]))
-        Ave_Par.append(np.float(data[i].split()[2]))
-        x_ = [np.float(x) for x in data[i].split()[3:3 + keywords['N_chains']]]
-        Chain_Par.append(x_)
+        # j    par_j: min, <> & last-chain-values for 0 ... N_chains chains (ave is 0'th chain!)
+        # Reading chain par-vector (light fractions at l_norm, + extinctions and etc)
+        # Notice that Chain_Par contains AV (maybe more than 1!) and fn, as well
+        # as x!
+        N_par = keywords['N_base'] + 1 + keywords['N_exAV'] + 1
+        _n1 = 67 + keywords['N_base'] + 6 - 1
+        _n2 = _n1 + N_par - 1 + 1
+        Best_Par = []
+        Ave_Par = []
+        Chain_Par = []
+        for unused, i in enumerate(range(_n1, _n2)):
+            Best_Par.append(np.float(data[i].split()[1]))
+            Ave_Par.append(np.float(data[i].split()[2]))
+            x_ = [np.float(x) for x in data[i].split()[3:3 + keywords['N_chains']]]
+            Chain_Par.append(x_)
 
-    # j Lambda-Averaged pop-vectors <LAx_*>_j: min, <> & last-chain-values for 0 ... N_chains chains (ave is 0'th chain!)
-    # Reading chain LAx pop-vectors
-    _n1 = 67 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + 2
-    _n2 = _n1 + keywords['N_base']
-    Best_LAx = []
-    Ave_LAx = []
-    Chain_LAx = []
-    for unused, i in enumerate(range(_n1, _n2)):
-        Best_LAx.append(np.float(data[i].split()[1]))
-        Ave_LAx.append(np.float(data[i].split()[2]))
-        x_ = [np.float(x) for x in data[i].split()[3:3 + keywords['N_chains']]]
-        Chain_LAx.append(x_)
+        # j Lambda-Averaged pop-vectors <LAx_*>_j: min, <> & last-chain-values for 0 ... N_chains chains (ave is 0'th chain!)
+        # Reading chain LAx pop-vectors
+        _n1 = 67 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + 2
+        _n2 = _n1 + keywords['N_base']
+        Best_LAx = []
+        Ave_LAx = []
+        Chain_LAx = []
+        for unused, i in enumerate(range(_n1, _n2)):
+            Best_LAx.append(np.float(data[i].split()[1]))
+            Ave_LAx.append(np.float(data[i].split()[2]))
+            x_ = [np.float(x) for x in data[i].split()[3:3 + keywords['N_chains']]]
+            Chain_LAx.append(x_)
 
-    # j   Mcor_j: min, <> & last-chain-values for 0 ... N_chains chains (ave is 0'th chain!)
-    # Reading chain mu_cor pop-vectors
-    _n1 = 67 + keywords['N_base'] + 6 - 1 + \
-        N_par - 1 + 1 + 2 + keywords['N_base'] + 2
-    _n2 = _n1 + keywords['N_base']
-    Best_mu_cor = []
-    Ave_mu_cor = []
-    Chain_mu_cor = []
-    for unused, i in enumerate(range(_n1, _n2)):
-        Best_mu_cor.append(np.float(data[i].split()[1]))
-        Ave_mu_cor.append(np.float(data[i].split()[2]))
-        x_ = [np.float(x) for x in data[i].split()[3:3 + keywords['N_chains']]]
-        Chain_mu_cor.append(x_)
+        # j   Mcor_j: min, <> & last-chain-values for 0 ... N_chains chains (ave is 0'th chain!)
+        # Reading chain mu_cor pop-vectors
+        _n1 = 67 + keywords['N_base'] + 6 - 1 + \
+            N_par - 1 + 1 + 2 + keywords['N_base'] + 2
+        _n2 = _n1 + keywords['N_base']
+        Best_mu_cor = []
+        Ave_mu_cor = []
+        Chain_mu_cor = []
+        for unused, i in enumerate(range(_n1, _n2)):
+            Best_mu_cor.append(np.float(data[i].split()[1]))
+            Ave_mu_cor.append(np.float(data[i].split()[2]))
+            x_ = [np.float(x) for x in data[i].split()[3:3 + keywords['N_chains']]]
+            Chain_mu_cor.append(x_)
 
-    # chi2/Nl_eff & Mass for min, <> & i_chain = 0 ...  N_chains chains (ave is 0'th chain!)
-    # Read Chain chi2/Nl_eff's , as well as kinematics before_EX0s
-    i = 67 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + \
-        2 + keywords['N_base'] + 2 + keywords['N_base'] + 2
-    keywords['best_chi2'] = np.float(data[i].split()[1])
-    keywords['ave_chi2'] = np.float(data[i].split()[2])
-    keywords['cha_chi2'] = [
-        np.float(x) for x in data[i].split()[3:3 + keywords['N_chains']]]
+        # chi2/Nl_eff & Mass for min, <> & i_chain = 0 ...  N_chains chains (ave is 0'th chain!)
+        # Read Chain chi2/Nl_eff's , as well as kinematics before_EX0s
+        i = 67 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + \
+            2 + keywords['N_base'] + 2 + keywords['N_base'] + 2
+        keywords['best_chi2'] = np.float(data[i].split()[1])
+        keywords['ave_chi2'] = np.float(data[i].split()[2])
+        keywords['cha_chi2'] = [
+            np.float(x) for x in data[i].split()[3:3 + keywords['N_chains']]]
 
-    keywords['best_Mcor'] = np.float(data[i + 1].split()[1])
-    keywords['ave_Mcor'] = np.float(data[i + 1].split()[2])
-    keywords['cha_Mcor'] = [
-        np.float(x) for x in data[i + 1].split()[3:3 + keywords['N_chains']]]
+        keywords['best_Mcor'] = np.float(data[i + 1].split()[1])
+        keywords['ave_Mcor'] = np.float(data[i + 1].split()[2])
+        keywords['cha_Mcor'] = [
+            np.float(x) for x in data[i + 1].split()[3:3 + keywords['N_chains']]]
 
-    keywords['v_0_before_EX0s'] = float(data[i + 2].split()[0])
-    keywords['v_d_before_EX0s'] = float(data[i + 3].split()[0])
+        keywords['v_0_before_EX0s'] = float(data[i + 2].split()[0])
+        keywords['v_d_before_EX0s'] = float(data[i + 3].split()[0])
 
-    # Store chains in tables.
-    cols = [Best_Par, Ave_Par, Chain_Par]
-    chains_names = ['best', 'average', 'chains']
-    tables['chains_par'] = Table(cols, names=chains_names)
+        
+        # Store chains in tables.
+        cols = [Best_Par, Ave_Par, Chain_Par]
+        chains_names = ['best', 'average', 'chains']
+        tables['chains_par'] = Table(cols, names=chains_names)
 
-    cols = [Best_LAx, Ave_LAx, Chain_LAx]
-    tables['chains_LAx'] = Table(cols, names=chains_names)
+        cols = [Best_LAx, Ave_LAx, Chain_LAx]
+        tables['chains_LAx'] = Table(cols, names=chains_names)
 
-    cols = [Best_mu_cor, Ave_mu_cor, Chain_mu_cor]
-    tables['chains_mu_cor'] = Table(cols, names=chains_names)
-    #--------------------------------------------------------------------
+        cols = [Best_mu_cor, Ave_mu_cor, Chain_mu_cor]
+        tables['chains_mu_cor'] = Table(cols, names=chains_names)
+        #--------------------------------------------------------------------
 
     N_par = keywords['N_base'] + 1 + keywords['N_exAV'] + 1
 
@@ -446,28 +448,20 @@ def read_output_file(filename):
             R_Lya.append(float(data[i].split()[13]))
             R_LCE.append(float(data[i].split()[14]))
 
-        cols = [x_FIR,
-                x_BOL,
-                BolCor,
-                FracLion,
-                Lbol_M,
-                Rmat,
-                R_opt,
-                R_Lya,
-                R_LCE]
+               
+        tables['FIR'] = Table()       
 
-        names = ['x_FIR',
-                 'x_BOL',
-                 'BolCor',
-                 'FracLion',
-                 'Lbol_M',
-                 'Rmat',
-                 'R_opt',
-                 'R_Lya',
-                 'R_LCE']
+        tables['FIR']['x_FIR']    = x_FIR
+        tables['FIR']['x_BOL']    = x_BOL
+        tables['FIR']['BolCor']   = BolCor
+        tables['FIR']['FracLion'] = FracLion
+        tables['FIR']['Lbol_M']   = Lbol_M
+        tables['FIR']['Rmat']     = Rmat
+        tables['FIR']['R_opt']    = R_opt
+        tables['FIR']['R_Lya']    = R_Lya
+        tables['FIR']['R_LCE']    = R_LCE
 
-        tables['FIR'] = Table(cols, names=names)
-        tables['FIR'].keys()
+        
 
     #--------------------------------------------------------------------
     # Reading QHR-related output
@@ -527,54 +521,47 @@ def read_output_file(filename):
             QHR_logY_low.append(float(data[i].split()[9]))
             QHR_logY_upp.append(float(data[i].split()[10]))
 
-        cols = [QHR_lambda,
-                QHR_frecomb,
-                QHR_logY_TOT,
-                QHR_YFrac2Model,
-                QHR_ErrlogY,
-                QHR_RangelogY,
-                QHR_Chi2ScaleFactor,
-                QHR_logY_obs,
-                QHR_logY_low,
-                QHR_logY_upp]
+        tables['QHR'] = Table()        
+        
+        tables['QHR']['lambda']          = QHR_lambda 
+        tables['QHR']['frecomb']         = QHR_frecomb
+        tables['QHR']['logY_tot']        = QHR_logY_TOT 
+        tables['QHR']['YFrac2Model']     = QHR_YFrac2Model
+        tables['QHR']['ErrlogY']         = QHR_ErrlogY
+        tables['QHR']['RangelogY']       = QHR_RangelogY 
+        tables['QHR']['Chi2ScaleFactor'] = QHR_Chi2ScaleFactor
+        tables['QHR']['logY_obs']        = QHR_logY_obs 
+        tables['QHR']['logY_low']        = QHR_logY_low 
+        tables['QHR']['logY_upp']        = QHR_logY_upp 
 
-        names = ['lambda',
-                 'frecomb',
-                 'logY_tot',
-                 'YFrac2Model',
-                 'ErrlogY',
-                 'RangelogY',
-                 'Chi2ScaleFactor',
-                 'logY_obs',
-                 'logY_low',
-                 'logY_upp']
-
-        tables['QHR_Obs'] = Table(cols, names=names)
+        
 
         # Read Emission Line Ratio-related things
         _n3 = _n2 + 2
 
+        tables['ELR'] = {}
+
         keywords['IsELROn'] = int(data[_n3].split()[0])
-        keywords['ELR_lambda_A'] = float(data[_n3].split()[1])
-        keywords['ELR_lambda_B'] = float(data[_n3].split()[2])
-        keywords['ELR_ind_A'] = int(data[_n3].split()[3])
-        keywords['ELR_ind_B'] = int(data[_n3].split()[4])
-        keywords['ELR_logRint'] = float(data[_n3].split()[5])
-        keywords['ELR_AV_neb'] = float(data[_n3].split()[6])
-        keywords['ELR_errAV_neb'] = float(data[_n3].split()[7])
+        tables['ELR']['lambda_A'] = float(data[_n3].split()[1])
+        tables['ELR']['lambda_B'] = float(data[_n3].split()[2])
+        tables['ELR']['ind_A'] = int(data[_n3].split()[3])
+        tables['ELR']['ind_B'] = int(data[_n3].split()[4])
+        tables['ELR']['logRint'] = float(data[_n3].split()[5])
+        keywords['Av_neb'] = float(data[_n3].split()[6])
+        tables['ELR']['errAV_neb'] = float(data[_n3].split()[7])
         _n3 += 1
 
 
-        keywords['ELR_Err_logR'] = float(data[_n3].split()[0])
-        keywords['ELR_RangelogR'] = float(data[_n3].split()[1])
-        keywords['ELR_logR_low'] = float(data[_n3].split()[2])
-        keywords['ELR_logR_upp'] = float(data[_n3].split()[3])
-        keywords['ELR_Chi2ScaleFactor'] = float(data[_n3].split()[4])
+        tables['ELR']['Err_logR'] = float(data[_n3].split()[0])
+        tables['ELR']['RangelogR'] = float(data[_n3].split()[1])
+        tables['ELR']['logR_low'] = float(data[_n3].split()[2])
+        tables['ELR']['logR_upp'] = float(data[_n3].split()[3])
+        tables['ELR']['Chi2ScaleFactor'] = float(data[_n3].split()[4])
         _n3 += 1
 
-        keywords['ELR_logR_obs'] = float(data[_n3].split()[0])
-        keywords['ELR_logR_mod'] = float(data[_n3].split()[1])
-        keywords['chi2_ELR'] = float(data[_n3].split()[2])
+        tables['ELR']['logR_obs'] = float(data[_n3].split()[0])
+        tables['ELR']['logR_mod'] = float(data[_n3].split()[1])
+        tables['ELR']['chi2_ELR'] = float(data[_n3].split()[2])
         
         _n3 += 3
 
@@ -588,38 +575,22 @@ def read_output_file(filename):
         _n3 += 2
 
         # Reset & read QHR model
-        QHR_lambda = []
         QHR_q_lambda = []
-        QHR_logY_obs = []
-        QHR_ModlogY = []
+        QHR_logY_mod = []
         QHR_chi2_Y = []
         
         # Read QHR model
         _n1 = _n3
         _n2 = _n1 + keywords['NQHR_Ys']
         for i in range(_n1, _n2):
-            QHR_lambda.append(float(data[i].split()[1]))
             QHR_q_lambda.append(float(data[i].split()[2]))
-            QHR_logY_obs.append(float(data[i].split()[3]))
-            QHR_ModlogY.append(float(data[i].split()[4]))
+            QHR_logY_mod.append(float(data[i].split()[4]))
             QHR_chi2_Y.append(float(data[i].split()[5]))
             
-        cols = [QHR_lambda,
-                QHR_q_lambda,
-                QHR_logY_obs,
-                QHR_ModlogY,
-                QHR_chi2_Y,
-                ]
-
-        names = ['lambda',
-                 'q_lambda',
-                 'logY_obs',
-                 'logY_mod',
-                 'chi2_Y',
-                 ]
-
-        tables['QHR_Mod'] = Table(cols, names=names)
-
+        tables['QHR']['q_lambda'] = QHR_q_lambda
+        tables['QHR']['logY_mod'] = QHR_logY_mod
+        tables['QHR']['chi2_Y']   = QHR_chi2_Y
+                 
         _n3 = _n2 + 2
 
         # Reset & read FIR-related SSP arrays
@@ -647,12 +618,16 @@ def read_output_file(filename):
         for il in range(0, keywords['NQHR_Ys']):
             cols.append(Y_Perc[il])
             names.append('Y_Perc_Line' + str(il))
-        tables['QHR'] = Table(cols, names=names)
+        tables['popQHR'] = Table(cols, names=names)
 
     #--------------------------------------------------------------------
     # Reading PHO-related output
     #--------------------------------------------------------------------
     if (keywords['IsPHOcOn'] != 0):
+        
+        #Creating PHO table
+        tables['PHO'] = Table()
+
         N_par = keywords['N_base'] + 1 + keywords['N_exAV'] + 1
 
         # Skip spectra
@@ -711,27 +686,17 @@ def read_output_file(filename):
             PHO_magY_low.append(float(data[i].split()[8]))
             PHO_magY_upp.append(float(data[i].split()[9]))
 
-        cols = [PHO_name,
-                PHO_magY_TOT,
-                PHO_YFrac2Model,
-                PHO_magYErr,
-                PHO_magYRange,
-                PHO_Chi2ScaleFactor,
-                PHO_magY_obs,
-                PHO_magY_low,
-                PHO_magY_upp]
 
-        names = ['name',
-                 'magY_TOT',
-                 'Yfrac2model',
-                 'magYErr',
-                 'magYRange',
-                 'Chi2ScaleFactor',
-                 'magY_obs',
-                 'magY_low',
-                 'magY_upp']
+        tables['PHO']['filter']           = PHO_name 
+        tables['PHO']['magY_TOT']         = PHO_magY_TOT
+        tables['PHO']['Yfrac2model']      = PHO_YFrac2Model 
+        tables['PHO']['magYErr']          = PHO_magYErr  
+        tables['PHO']['magYRange']        = PHO_magYRange 
+        tables['PHO']['Chi2ScaleFactor']  = PHO_Chi2ScaleFactor 
+        tables['PHO']['magY_obs']         = PHO_magY_obs 
+        tables['PHO']['magY_low']         = PHO_magY_low 
+        tables['PHO']['magY_upp']         = PHO_magY_upp 
 
-        tables['PHO_obs'] = Table(cols, names=names)
 
         _n3 = _n2 + 2
 
@@ -743,7 +708,6 @@ def read_output_file(filename):
 
 #  name/code   MeanLamb PivotLamb StdDevLamb    q_MeanLamb  magY_obs     magY_mod     fY_obs        fY_mod       chi2_Y        chi2_Y/chi2_OPT  chi2_Y/chi2_TOT
         # Reset & read PHO model
-        PHO_name          = []
         PHO_MeanLamb      = []
         PHO_PivotLamb     = []
         PHO_StdDevLamb    = []
@@ -770,31 +734,16 @@ def read_output_file(filename):
             PHO_chi2_Y.append(float(data[i].split()[10]))
 
 
-        cols = [PHO_name,
-                PHO_MeanLamb,
-                PHO_PivotLamb,
-                PHO_StdDevLamb,
-                PHO_q_MeanLamb,
-                PHO_magY_obs,
-                PHO_magY_mod,
-                PHO_fY_obs,
-                PHO_fY_mod,
-                PHO_chi2_Y,
-                ]
-
-        names = ['name'
-                ,'MeanLamb'
-                ,'PivotLamb'
-                ,'StdDevLamb'
-                ,'q_MeanLamb'
-                ,'magY_obs'
-                ,'magY_mod'
-                ,'fY_obs'
-                ,'fY_mod'
-                ,'chi2_Y'
-                ]
-
-        tables['PHO_mod'] = Table(cols, names=names)
+        tables['PHO']['MeanLamb']   = PHO_MeanLamb
+        tables['PHO']['PivotLamb']  = PHO_PivotLamb
+        tables['PHO']['StdDevLamb'] = PHO_StdDevLamb
+        tables['PHO']['q_MeanLamb'] = PHO_q_MeanLamb
+        tables['PHO']['magY_obs']   = PHO_magY_obs
+        tables['PHO']['magY_mod']   = PHO_magY_mod
+        tables['PHO']['fY_obs']     = PHO_fY_obs
+        tables['PHO']['fY_mod']     = PHO_fY_mod
+        tables['PHO']['chi2_Y']     = PHO_chi2_Y
+                
 
         _n3 = _n2 + 2
 
@@ -806,9 +755,12 @@ def read_output_file(filename):
         _n2 = _n1 + keywords['N_base']
         for i in range(_n1, _n2):
             Y_Perc.append([float(x) for x in data[i].split()[6:]])
+        
+        Y_Perc = np.array(Y_Perc)
 
-        cols = [Y_Perc]
-        names = ['Y_Perc']
-        tables['PHO'] = Table(cols, names=names)
+        tables['PHO']['Y_Perc'] = np.zeros((keywords['NPHO_Ys'], keywords['N_base']))
+        for i in range(keywords['NPHO_Ys']):
+            tables['PHO']['Y_Perc'][i] = Y_Perc[:,i] 
 
     return tables
+
