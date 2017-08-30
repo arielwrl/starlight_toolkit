@@ -50,9 +50,9 @@ def plot_spec(out, ax=None, plot_obs=True, plot_error=True
         f_w0         = np.ma.masked_array(data=f_obs, mask=~w0)
         f_obs_flag   = np.ma.masked_array(data=f_obs, mask=~flagged)
 
-        ax.plot(l_obs, f_obs_masked, color=obs_color, lw=0.5, label='$O_\lambda$')
-        ax.plot(l_obs, f_w0, color=w0_color, lw=0.5, label=r'$w_\lambda=0$')
-        ax.plot(l_obs, f_obs_flag, color=flag_color, lw=0.5, label='$Flag$', zorder=10)
+        ax.plot(l_obs, f_obs_masked, color=obs_color, lw=0.3, label='$O_\lambda$')
+        ax.plot(l_obs, f_w0, color=w0_color, lw=0.3, label=r'$w_\lambda=0$')
+        ax.plot(l_obs, f_obs_flag, color=flag_color, lw=0.3, label='$Flag$', zorder=10)
 
         if clipped.sum() > 0:
             ax.scatter(l_obs, np.ma.masked_array(f_obs, mask=~clipped), color=clip_color
@@ -82,11 +82,11 @@ def plot_spec(out, ax=None, plot_obs=True, plot_error=True
         wl_pho = out['PHO']['MeanLamb']/(1+z)
         
         #Plotting observed photometry:
-        ax.plot(wl_pho, flux_obs, 'ok', markersize=4
+        ax.plot(wl_pho, flux_obs, 'ok', markersize=5
         , label=r'$O_{\mathrm{PHO}}$')
 
         #Plotting modeled photometry:
-        ax.plot(wl_pho, flux_mod, 'oc', markersize=4
+        ax.plot(wl_pho, flux_mod, 'oc', markersize=5
         , label=r'$M_{\mathrm{PHO}}$', zorder=15)
 
 
@@ -128,6 +128,7 @@ def plot_spec_from_file(out_file):
     plot_spec(out)
 
 
+
 def plot_filter(filter_file, ax=None, filter_color='k'
 , filter_ls='dashed', redshift=0, scale_factor=1):
     '''
@@ -164,7 +165,7 @@ def plot_residual_spec(out, ax=None, residual_color='g'
 
     residual = np.ma.masked_array(data=(f_obs-f_syn)/f_syn, mask=w0)
 
-    ax.plot(l_obs, residual, lw=0.5, color=residual_color)
+    ax.plot(l_obs, residual, lw=0.3, color=residual_color)
 
     x = np.linspace(l_obs[0], l_obs[-1])
     y = np.zeros_like(x)
@@ -175,6 +176,36 @@ def plot_residual_spec(out, ax=None, residual_color='g'
         ax.set_xlabel(r'$\lambda[\mathrm{\AA}]$', fontsize=10)
         ax.set_ylabel(r'Residual', fontsize=10)
     
+
+def plot_sfh(out, ax):
+    #Calculating and plotting SFH:
+    age_base  = out['population']['popage_base']
+    Z_base    = out['population']['popZ_base']
+    popx      = out['population']['popx']
+    popmu_ini = out['population']['popmu_ini']
+    
+    
+    agevec, sfh_x, csfh_x = pp.calc_sfh_x(age_base, popx)    
+    agevec, sfh_m, csfh_mu = pp.calc_sfh(age_base, popmu_ini)
+    
+    
+    ax.plot(np.log10(agevec), csfh_x, color='b', label=r'$x$')
+    ax.plot(np.log10(agevec), csfh_x, '.b')
+
+    ax.plot(np.log10(agevec), csfh_mu, color='r', label=r'$\mu$')
+    ax.plot(np.log10(agevec), csfh_mu, '.r')
+    
+    if out['keywords']['IsQHRcOn']==1:
+        popQHR  = out['popQHR']['QHeff_Perc']
+        cQHRvec = pp.calc_QHRpop_x(age_base, popQHR)
+        ax.plot(np.log10(agevec), cQHRvec, color='m', label=r'$Q_H$')
+        ax.plot(np.log10(agevec), cQHRvec, '.m')
+
+    ax.set_xlabel(r'$\log t_*$', fontsize=10)
+    ax.set_ylabel('Cumulative Fraction [%]', fontsize=10)
+
+
+
 
 def plot_fit_complete(out, title=None, figsize=(7.75,6.5)
                       , out_fig_fname=None, out_dpi=None
@@ -213,41 +244,17 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5)
     
     p2.set_ylim(-0.15,0.15)
     
-    #Calculating and plotting SFH:
-    age_base  = out['population']['popage_base']
-    Z_base    = out['population']['popZ_base']
-    popx      = out['population']['popx']
-    popmu_ini = out['population']['popmu_ini']
-    popmu_cor = out['population']['popmu_cor']
-    
-    
-    agevec, sfh_x, csfh_x = pp.calc_sfh_x(age_base, popx)    
-    agevec, sfh_m, csfh_mu = pp.calc_sfh(age_base, popmu_ini)
-    
-    
+
+    #Plotting SFH:
     gs2 = gridspec.GridSpec(1, 3)
     gs2.update(top=0.38, bottom=0.08, hspace=0.05, right=0.96, wspace=0.02)
     
     p3 = plt.subplot(gs2[0, 0])
 
-    p3.plot(np.log10(agevec), csfh_x, color='b', label=r'$x$')
-    p3.plot(np.log10(agevec), csfh_x, '.b')
-
-    p3.plot(np.log10(agevec), csfh_mu, color='r', label=r'$\mu$')
-    p3.plot(np.log10(agevec), csfh_mu, '.r')
-    
-    if out['keywords']['IsQHRcOn']==1:
-        popQHR  = out['popQHR']['QHeff_Perc']
-        cQHRvec = pp.calc_QHRpop_x(age_base, popQHR)
-        p3.plot(np.log10(agevec), cQHRvec, color='m', label=r'$Q_H$')
-        p3.plot(np.log10(agevec), cQHRvec, '.m')
+    plot_sfh(out, p3)
 
     p3.set_xticks([6,7,8,9,10])
-
     p3.grid()
-
-    p3.set_xlabel(r'$\log t_*$', fontsize=10)
-    p3.set_ylabel('Cumulative Fraction', fontsize=10)
     
     p3.legend(frameon=False, fontsize=9)
     
@@ -262,11 +269,18 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5)
     , top='off', labelbottom='off', right='off', left='off'
     , labelleft='off')
     
+    
     #Calculating mass and light weighted ages:
+    
+    age_base  = out['population']['popage_base']
+    Z_base    = out['population']['popZ_base']
+    popx      = out['population']['popx']
+    popmu_cor = out['population']['popmu_cor']
+    
     atflux = pp.calc_atflux(age_base, popx)
     atmass = pp.calc_atmass(age_base, popmu_cor)
-    Zflux  = pp.calc_meanZflux(Z_base, popx, 0.02)
-    Zmass  = pp.calc_meanZmass(Z_base, popmu_cor, 0.02)
+    Zflux  = pp.calc_aZflux(Z_base, popx, 0.02)
+    Zmass  = pp.calc_aZmass(Z_base, popmu_cor, 0.02)
     
     #Annotating stuff:
     
@@ -375,7 +389,7 @@ def plot_fit_complete_from_file(out_file, return_output_tables=False
 , legend_loc='best'):
     try:
         out = r.read_output_file(out_file)
-           #Plotting spectra:
+        #Plotting spectra:
         plot_fit_complete(out, title, figsize
                       , out_fig_fname, out_dpi
                       , legend_loc=legend_loc)

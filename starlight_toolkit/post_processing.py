@@ -39,8 +39,8 @@ def calc_atflux(age_base, popx):
 def calc_atmass(age_base, popmu):
     return np.sum(np.log10(age_base) * popmu)/popmu.sum()
    
-def calc_meanZflux(Z_base, popx, Z_sun): 
+def calc_aZflux(Z_base, popx, Z_sun): 
     return (popx * np.log10(Z_base/0.02)).sum()/ popx.sum()
 
-def calc_meanZmass(Z_base, popmu, Z_sun): 
+def calc_aZmass(Z_base, popmu, Z_sun): 
     return (popmu * np.log10(Z_base/0.02)).sum()/popmu.sum()
