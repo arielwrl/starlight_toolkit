@@ -70,6 +70,10 @@ def read_output_file(filename, read_chains=False):
     keywords = {}
     tables = {}
     tables['keywords'] = keywords
+    
+    #Setting IsELROn in case QHRc are off.
+    keywords['IsELROn'] = 0
+    
     keywords['file_version'] = fileVersion
     keywords['arq_synt'] = os.path.basename(filename)
 

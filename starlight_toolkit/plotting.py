@@ -52,7 +52,7 @@ def plot_spec(out, ax=None, plot_obs=True, plot_error=True
 
         ax.plot(l_obs, f_obs_masked, color=obs_color, lw=0.5, label='$O_\lambda$')
         ax.plot(l_obs, f_w0, color=w0_color, lw=0.5, label=r'$w_\lambda=0$')
-        ax.scatter(l_obs, f_obs_flag, color=flag_color, marker='x', label='$Flag$', zorder=10)
+        ax.plot(l_obs, f_obs_flag, color=flag_color, lw=0.5, label='$Flag$', zorder=10)
 
         if clipped.sum() > 0:
             ax.scatter(l_obs, np.ma.masked_array(f_obs, mask=~clipped), color=clip_color
@@ -247,7 +247,7 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5)
     p3.grid()
 
     p3.set_xlabel(r'$\log t_*$', fontsize=10)
-    p3.set_ylabel('Fraction', fontsize=10)
+    p3.set_ylabel('Cumulative Fraction', fontsize=10)
     
     p3.legend(frameon=False, fontsize=9)
     
