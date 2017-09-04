@@ -57,14 +57,15 @@ def read_output_file(filename, read_chains=False):
         raise Exception('File not found: %s' % filename)
     
 
+    mode = 'rt'
     if filename.endswith('.gz'):
-        f = gzip.GzipFile(filename)
+        open_func = gzip.open
     elif filename.endswith('.bz2'):
-        f = bz2.BZ2File(filename)
+        open_func = bz2.open
     else:
-        f = open(filename)
-    data = f.read().splitlines()
-    f.close()
+        open_func = open
+    with open_func(filename, mode) as f:
+        data = f.read().splitlines()
 
     fileVersion = data[1].split()[5]
     keywords = {}
