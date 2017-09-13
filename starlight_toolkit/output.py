@@ -105,9 +105,9 @@ def read_output_file(filename, read_chains=False):
     
     keywords['ETC_ESM'] = data[12].split()[0]
     keywords['ETC_gamma'] = float(data[12].split()[1])
-    keywords['Np_PHO'] = int(data[12].split()[2])
+    keywords['Np_FIR'] = int(data[12].split()[2])
+    keywords['Np_PHO'] = int(data[12].split()[4])
     keywords['Np_QHR'] = int(data[12].split()[3])
-    keywords['Np_FIR'] = int(data[12].split()[4])
     
     keywords['red_law_option'] = data[13].split()[0]
     keywords['q_norm'] = float(data[14].split()[0])
@@ -768,4 +768,15 @@ def read_output_file(filename, read_chains=False):
             tables['PHO']['Y_Perc'][i] = Y_Perc[:,i] 
 
     return tables
+
+
+
+def is_output_OK(out_file):
+    try:
+        out = read_output_file(out_file)
+        return True
+        
+    except (ValueError, IndexError, Exception):
+        return False
+
 
