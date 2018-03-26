@@ -1,7 +1,7 @@
 import numpy as np
 from astropy.table import Table
 
-def read_base_ascii(base_dir, base_file, out_fname=None, save_fits=True):
+def read_base_ascii(base_file, base_dir='./', out_fname=None, save_fits=False):
 
     dt = np.dtype([('sspfile', '|S60'), ('age_base', '>f8'), ('Z_base', '>f8'),
                    ('Mstars', '>f8'), ('YA_V', '>i4'), ('aFe', '>f8') ])

@@ -9,15 +9,16 @@ Created on 05/30/2017
 
 import numpy as np
 import matplotlib.pyplot as plt
-import starlight_toolkit.output as r
+import starlight_toolkit.output as stout
 import starlight_toolkit.post_processing as pp
 import matplotlib.gridspec as gridspec
 
 
 
 def plot_spec(out, ax=None, plot_obs=True, plot_error=True
-, plot_labels=True, obs_color='k', syn_color='b', syn_lw=0.5, w0_color='y'
-, clip_color='m', flag_color='g', syn_label=r'$M_\lambda$'):
+, plot_labels=True, obs_color='k', syn_color='b', syn_lw=0.6, w0_color='y'
+, clip_color='m', flag_color='g', syn_label=r'$M_\lambda$'
+, plot_PHO=True, PHO_color='cyan', PHO_label=r'$M_{\mathrm{PHO}}$'):
     '''
     Quick plots for Starlight output files.
     Parameters
@@ -50,16 +51,16 @@ def plot_spec(out, ax=None, plot_obs=True, plot_error=True
         f_w0         = np.ma.masked_array(data=f_obs, mask=~w0)
         f_obs_flag   = np.ma.masked_array(data=f_obs, mask=~flagged)
 
-        ax.plot(l_obs, f_obs_masked, color=obs_color, lw=0.3, label='$O_\lambda$')
-        ax.plot(l_obs, f_w0, color=w0_color, lw=0.3, label=r'$w_\lambda=0$')
-        ax.plot(l_obs, f_obs_flag, color=flag_color, lw=0.3, label='$Flag$', zorder=10)
+        ax.plot(l_obs, f_obs_masked, color=obs_color, lw=0.5, label='$O_\lambda$')
+        ax.plot(l_obs, f_w0, color=w0_color, lw=0.5, label=r'$w_\lambda=0$')
+        ax.plot(l_obs, f_obs_flag, color=flag_color, lw=0.5, label='$Flag$', zorder=10)
 
         if clipped.sum() > 0:
             ax.scatter(l_obs, np.ma.masked_array(f_obs, mask=~clipped), color=clip_color
             , marker='x', label=r'Clipped', zorder=10)
 
     if plot_error==True:
-        ax.plot(l_obs, error, '--r', label=r'$\epsilon_\lambda$')
+        ax.plot(l_obs, error, '--r', label=r'$\epsilon_\lambda$', lw=0.5)
 
     if plot_labels==True:
         ax.set_ylabel(r'$F_\lambda/F_{\lambda%i}$'%out['keywords']['l_norm'], fontsize=11)
@@ -67,9 +68,12 @@ def plot_spec(out, ax=None, plot_obs=True, plot_error=True
     
     ax.plot(l_obs, f_syn, color=syn_color, lw=syn_lw, label=syn_label, zorder=5)
 
-    if out['keywords']['IsPHOcOn']==1:
+    if (out['keywords']['IsPHOcOn']!=0) & (plot_PHO==True):
+        #Reading fluxes and calculating errors
         flux_mod = out['PHO']['fY_mod']/out['keywords']['fobs_norm']
         flux_obs = out['PHO']['fY_obs']/out['keywords']['fobs_norm']
+
+        flux_err = flux_obs * out['PHO']['magYErr'] / np.log10(np.e)
 
         #Reading redshift from output file:
         z = out['keywords']['PHO_Redshift']
@@ -81,19 +85,102 @@ def plot_spec(out, ax=None, plot_obs=True, plot_error=True
         #Reading wavelengths and shifting them to the rest-frame
         wl_pho = out['PHO']['MeanLamb']/(1+z)
         
+        if out['keywords']['IsPHOcOn']==1:
         #Plotting observed photometry:
-        ax.plot(wl_pho, flux_obs, 'ok', markersize=5
-        , label=r'$O_{\mathrm{PHO}}$')
+          ax.errorbar(wl_pho, flux_obs, flux_err, fmt= 'ok', ecolor='k', markersize=4
+            , label=r'$O_{\mathrm{PHO}}$')
+
 
         #Plotting modeled photometry:
-        ax.plot(wl_pho, flux_mod, 'oc', markersize=5
-        , label=r'$M_{\mathrm{PHO}}$', zorder=15)
+        ax.plot(wl_pho, flux_mod, 'o', color=PHO_color, markersize=4
+                , label=PHO_label, zorder=15)
 
 
     ax.set_ylim(0, 1.5 * np.max(f_syn))
     ax.set_xlim(out['keywords']['l_ini'],out['keywords']['l_fin'])
     
+
+
+def plot_spec_simple(out, ax=None, plot_obs=True, plot_error=True
+, plot_labels=True, obs_color='k', syn_color='b', syn_lw=0.6, w0_color='y'
+, clip_color='m', syn_label=r'$M_\lambda$'
+, plot_PHO=True, PHO_color='cyan', PHO_label=r'$M_{\mathrm{PHO}}$'):
+    '''
+    Quick plots for Starlight output files.
+    Parameters
+    ----------
+        out : Starlight output dictionary;
+        ax  : matplotlib axis
+                Axis to draw plot;
+        plot_obs : boolean
+                If True, observed spectrum will be plotted;
+    '''
+
+    if ax==None:
+        ax = plt.gca()
+
+
+    l_obs, f_obs, f_syn, f_wei = out['spectra']['l_obs'], \
+    out['spectra']['f_obs'], out['spectra']['f_syn'], out['spectra']['f_wei']
     
+    w0 = out['spectra']['f_wei'] <= 0
+
+    clipped = out['spectra']['f_wei'] == -1.0
+
+    error = np.ma.masked_array(1/f_wei, mask=w0)
+
+    if plot_obs==True:
+
+        f_obs_masked = np.ma.masked_array(data=f_obs, mask=w0)
+        f_w0         = np.ma.masked_array(data=f_obs, mask=~w0)
+        
+
+        ax.plot(l_obs, f_obs_masked, color=obs_color, lw=0.5, label='$O_\lambda$')
+        ax.plot(l_obs, f_w0, color=w0_color, lw=0.5, label=r'$w_\lambda=0$')
+
+        #if clipped.sum() > 0:
+            #ax.scatter(l_obs, np.ma.masked_array(f_obs, mask=~clipped), color=clip_color
+            #, marker='x', label=r'Clipped', zorder=10)
+
+    if plot_error==True:
+        ax.plot(l_obs, error, '--r', label=r'$\epsilon_\lambda$', lw=0.5)
+
+    if plot_labels==True:
+        ax.set_ylabel(r'$F_\lambda/F_{\lambda%i}$'%out['keywords']['l_norm'], fontsize=11)
+        ax.set_xlabel(r'$\lambda\mathrm{[\AA]}$', fontsize=11)
+    
+    ax.plot(l_obs, f_syn, color=syn_color, lw=syn_lw, label=syn_label, zorder=5)
+
+    if (out['keywords']['IsPHOcOn']!=0) & (plot_PHO==True):
+        flux_mod = out['PHO']['fY_mod']/out['keywords']['fobs_norm']
+        flux_obs = out['PHO']['fY_obs']/out['keywords']['fobs_norm']
+
+        flux_err = flux_obs * out['PHO']['magYErr'] / np.log10(np.e)
+
+        #Reading redshift from output file:
+        z = out['keywords']['PHO_Redshift']
+
+        #Getting rest-frame fluxes:
+        flux_mod *= (1+z)
+        flux_obs *= (1+z)
+
+        #Reading wavelengths and shifting them to the rest-frame
+        wl_pho = out['PHO']['MeanLamb']/(1+z)
+        
+        if out['keywords']['IsPHOcOn']==1:
+        #Plotting observed photometry:
+            ax.errorbar(wl_pho, flux_obs, flux_err, fmt= 'ok', ecolor='k', markersize=4
+            , label=r'$O_{\mathrm{PHO}}$')
+
+        #Plotting modeled photometry:
+        ax.plot(wl_pho, flux_mod, 'o', color=PHO_color, markersize=4
+                , label=PHO_label, zorder=15)
+
+
+    ax.set_ylim(0, 1.5 * np.max(f_syn))
+    ax.set_xlim(out['keywords']['l_ini'],out['keywords']['l_fin'])
+    
+        
 
 
 
@@ -120,7 +207,7 @@ def plot_spec_from_file(out_file):
 
     #Reading output file (a bit dirty because we have to handle exceptions):
     try:
-        out = r.read_output_file(out_file)
+        out = stout.read_output_file(out_file)
     except (ValueError, IndexError, Exception):
         print "Check if the output file is ok."
 
@@ -217,7 +304,7 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5)
     #Plot spectrum:
     
     gs1 = gridspec.GridSpec(3, 3)
-    gs1.update(bottom=0.47, top=0.96, hspace=0.0, right=0.96)
+    gs1.update(bottom=0.47, top=0.96, hspace=0.05, right=0.96)
     
     p1 = plt.subplot(gs1[0:2,:])
     
@@ -227,9 +314,9 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5)
     plt.tick_params(axis='x', bottom='off'
     , labelbottom='off')
 
-    p1.set_ylim(0, 2)
+    p1.set_ylim(0, 2.25)
 
-    dflt_title = '%s - idt_all:%d s' % (out['keywords']['arq_synt'], out['keywords']['idt_all'])
+    dflt_title = out['keywords']['arq_synt']
     if title == None:
         p1.set_title(dflt_title)
     else: 
@@ -263,6 +350,7 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5)
     
     #Annotations:
     p4 = plt.subplot(gs2[0, 1:3])
+    
     
     #Removing ticks:
     plt.tick_params(axis='both', bottom='off'
@@ -331,6 +419,9 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5)
     if out['keywords']['IsPHOcOn']==0:
         p4.annotate('PHO off', (0.51, 0.45), size=annotation_size)
         
+    if out['keywords']['IsELROn']==0:
+        p4.annotate(r'$x(A_V^Y) = {} \%$'.format(out['keywords']['x(exAV>0)']), \
+        (0.51, 0.3), size=annotation_size)
 
     if out['keywords']['IsQHRcOn']==1:
         p4.annotate(r'$\chi^2_{QHR}=%0.2f, k_{QHR}=%0.2f$'\
@@ -354,11 +445,6 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5)
             p4.annotate('Predicting ELR', (0.51, 0.3), size=annotation_size)
         if out['keywords']['IsELROn']==0:
             p4.annotate('ELR off', (0.51, 0.3), size=annotation_size)
-
-
-
-
-
     if out['keywords']['IsQHRcOn']==-1:
         p4.annotate('Predicting QHR', (0.51, 0.6), size=annotation_size)
     if out['keywords']['IsQHRcOn']==0:
@@ -388,7 +474,7 @@ def plot_fit_complete_from_file(out_file, return_output_tables=False
 , title=None, figsize=(7.75,6.5), out_fig_fname=None, out_dpi=None
 , legend_loc='best'):
     try:
-        out = r.read_output_file(out_file)
+        out = stout.read_output_file(out_file)
         #Plotting spectra:
         plot_fit_complete(out, title, figsize
                       , out_fig_fname, out_dpi

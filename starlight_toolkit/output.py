@@ -191,21 +191,22 @@ def read_output_file(filename, read_chains=False):
     keywords['chi2_ETC'] = float(data[64].split()[3])
     
     # Reset populations lists
-    popx = []    # column 2
-    popmu_ini = []    # column 3
-    popmu_cor = []    # column 4
-    popage_base = []    # column 5
-    popZ_base = []    # column 6
-    popfbase_norm = []    # column 7
-    popexAV_flag = []    # column 8
-    popMstars = []    # column 9
-    aFe = []    # column 11
-    SSP_chi2r = []    # column 12
-    SSP_adev = []    # column 13
-    SSP_AV = []    # column 14
-    SSP_x = []    # column 15
-    popAV_tot = []    # column 16
-    popLAx = []    # column 17
+    popx = []              # column 2
+    popmu_ini = []         # column 3
+    popmu_cor = []         # column 4
+    popage_base = []       # column 5
+    popZ_base = []         # column 6
+    popfbase_norm = []     # column 7
+    popexAV_flag = []      # column 8
+    popMstars = []         # column 9
+    aFe = []               # column 11
+    SSP_chi2r = []         # column 12
+    SSP_adev = []          # column 13
+    SSP_AV = []            # column 14
+    SSP_x = []             # column 15
+    popAV_tot = []         # column 16
+    popLAx = []            # column 17
+    
 
     # j     x_j(%)      Mini_j(%)     Mcor_j(%)     age_j(yr)     Z_j      (L/M)_j   exAV?  Mstars   component_j        new/Fe...    |  SSP_chi2r SSP_adev(%)   SSP_AV   SSP_x(%)    |  AV_tot   <LAx>_j(%)
     # Reads all these things (as lists) from lines _n1 to _n2
@@ -227,41 +228,33 @@ def read_output_file(filename, read_chains=False):
         SSP_x.append(float(data[i].split()[14]))
         popAV_tot.append(float(data[i].split()[15]))
         popLAx.append(float(data[i].split()[16]))
+        
 
     #WARNING: Ignoring Power-law fixes.
    
-    cols = [popx,
-            popmu_ini,
-            popmu_cor,
-            popage_base,
-            popZ_base,
-            popfbase_norm,
-            popexAV_flag,
-            popMstars,
-            aFe,
-            SSP_chi2r,
-            SSP_adev,
-            SSP_AV,
-            SSP_x,
-            popAV_tot]
-
-    names = ['popx',
-             'popmu_ini',
-             'popmu_cor',
-             'popage_base',
-             'popZ_base',
-             'popfbase_norm',
-             'popexAV_flag',
-             'popMstars',
-             'aFe',
-             'p_chi2r',
-             'p_adev',
-             'p_AV',
-             'p_x',
-             'popAV_tot']
+    tables['population'] = Table()
     
-    tables['population'] = Table(cols, names=names)
+    tables['population']['popx']          = popx
+    tables['population']['popmu_ini']     = popmu_ini
+    tables['population']['popmu_cor']     = popmu_cor
+    tables['population']['popage_base']   = popage_base
+    tables['population']['popZ_base']     = popZ_base
+    tables['population']['popfbase_norm'] = popfbase_norm
+    tables['population']['popexAV_flag']  = popexAV_flag
+    tables['population']['popMstars']     = popMstars
+    tables['population']['aFe']           = aFe
+    tables['population']['p_chi2r']       = SSP_chi2r
+    tables['population']['p_adev']        = SSP_adev
+    tables['population']['p_AV']          = SSP_AV
+    tables['population']['p_x']           = SSP_x
+    tables['population']['popAV_tot']     = popAV_tot
 
+    #Column 10 may be the upper age bin for composite stellar populations, if so. this value is stored:
+    try:
+        tables['population']['popage_base_upp'] = [float(data[i].split()[9]) for i in range(_n1, _n2)] 
+    except Exception: 
+        pass
+   
     if read_chains == True:
         #--------------------------------------------------------------------
         # Read chain-related info (in arrays!)
