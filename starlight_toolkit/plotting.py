@@ -104,7 +104,8 @@ def plot_spec(out, ax=None, plot_obs=True, plot_error=True
 def plot_spec_simple(out, ax=None, plot_obs=True, plot_error=True
 , plot_labels=True, obs_color='k', syn_color='b', syn_lw=0.6, w0_color='y'
 , clip_color='m', syn_label=r'$M_\lambda$'
-, plot_PHO=True, PHO_color='cyan', PHO_label=r'$M_{\mathrm{PHO}}$'):
+, plot_PHO=True, PHO_color='cyan', PHO_edgecolor=None
+, PHO_label=r'$M_{\mathrm{PHO}}$', PHO_markersize=5):
     '''
     Quick plots for Starlight output files.
     Parameters
@@ -118,6 +119,8 @@ def plot_spec_simple(out, ax=None, plot_obs=True, plot_error=True
 
     if ax==None:
         ax = plt.gca()
+    if PHO_edgecolor==None:
+        PHO_edgecolor=PHO_color
 
 
     l_obs, f_obs, f_syn, f_wei = out['spectra']['l_obs'], \
@@ -169,12 +172,12 @@ def plot_spec_simple(out, ax=None, plot_obs=True, plot_error=True
         
         if out['keywords']['IsPHOcOn']==1:
         #Plotting observed photometry:
-            ax.errorbar(wl_pho, flux_obs, flux_err, fmt= 'ok', ecolor='k', markersize=4
-            , label=r'$O_{\mathrm{PHO}}$')
+            ax.errorbar(wl_pho, flux_obs, flux_err, fmt= 'ok', ecolor='k', markersize=PHO_markersize
+            , label=r'$O_{\mathrm{PHO}}$', zorder=14)
 
         #Plotting modeled photometry:
-        ax.plot(wl_pho, flux_mod, 'o', color=PHO_color, markersize=4
-                , label=PHO_label, zorder=15)
+        ax.plot(wl_pho, flux_mod, 'o', color=PHO_color, markersize=PHO_markersize
+                , label=PHO_label, zorder=15, markeredgecolor=PHO_edgecolor, markeredgewidth=1)
 
 
     ax.set_ylim(0, 1.5 * np.max(f_syn))
@@ -184,7 +187,7 @@ def plot_spec_simple(out, ax=None, plot_obs=True, plot_error=True
 
 
 
-def plot_spec_from_file(out_file):
+def plot_spec_from_file(out_file, ax=None):
     '''
 
     Quick plots for Starlight output files.

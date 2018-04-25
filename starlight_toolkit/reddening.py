@@ -10,8 +10,7 @@ import numpy as np
 
 
 
-def calc_extinction(lamb
-    , EBV, Rv=3.1):
+def calc_extinction(lamb, EBV, Rv=3.1):
 
 
     #Calculate Av and A_lambda:
@@ -44,7 +43,7 @@ def extinction_corr(spectra,lambdas,EBV):
     A_lambdas = calc_extinction(lambdas,EBV)
 
     #Calculate corrected spectra:
-    corr_spectra = spectra * np.exp(A_lambdas/np.log(10))
+    corr_spectra = spectra * 10 ** (0.4 * A_lambdas)
 
     return corr_spectra
 
@@ -61,7 +60,7 @@ def extinction_decorr(spectra,lambdas,EBV):
     A_lambdas = calc_extinction(lambdas,EBV)
 
     #Calculate corrected spectra:
-    corr_spectra = spectra * np.exp(-A_lambdas/np.log(10))
+    corr_spectra = spectra * 10 ** (-0.4 * A_lambdas)
 
     return corr_spectra
 
