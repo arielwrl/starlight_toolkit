@@ -11,9 +11,9 @@ import numpy as np
 
 
 def calc_extinction(lamb, EBV, Rv=3.1):
-    #Calculate Av and A_lambda:
-    Av = Rv * EBV
-    A_lambda = Av * CCM(lamb)
+    #Calculate AV and A_lambda:
+    AV = Rv * EBV
+    A_lambda = AV * CCM(lamb)
 
     return A_lambda
     
@@ -61,7 +61,7 @@ def CCM(l, R_V=3.1):
 
     ---
         Input:   Wavelengths, Rv (Optional, default is 3.1)
-        Returns: A_lambda/Av
+        Returns: A_lambda/AV
 
 
     Reference: http://adsabs.harvard.edu/abs/1989ApJ...345..245C
