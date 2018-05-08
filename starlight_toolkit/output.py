@@ -84,7 +84,7 @@ def read_output_file(filename, read_chains=False):
 
     # Some input info
     keywords['arq_spec'] = data[5].split()[0]
-    keywords['obs_dir'] = data[5].split()[2]
+    keywords['obs_dir'] = data[5].split()[3]
     keywords['arq_base'] = data[6].split()[0]
     keywords['arq_masks'] = data[7].split()[0]
     keywords['arq_config'] = data[8].split()[0]
