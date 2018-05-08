@@ -168,8 +168,8 @@ def read_output_file(filename, read_chains=False):
 
     keywords['v0']   = float(data[56].split()[0])
     keywords['vd']   = float(data[57].split()[0])
-    keywords['Av']   = float(data[58].split()[0])
-    keywords['exAv'] = float(data[59].split()[0])
+    keywords['AV']   = float(data[58].split()[0])
+    keywords['exAV'] = float(data[59].split()[0])
     if len(data[59].split()[-1]) < 7:
         keywords['x(exAV>0)'] = float(data[59].split()[-1][0:-1])
     else:
@@ -548,7 +548,7 @@ def read_output_file(filename, read_chains=False):
         tables['ELR']['ind_A'] = int(data[_n3].split()[3])
         tables['ELR']['ind_B'] = int(data[_n3].split()[4])
         tables['ELR']['logRint'] = float(data[_n3].split()[5])
-        keywords['Av_neb'] = float(data[_n3].split()[6])
+        keywords['AV_neb'] = float(data[_n3].split()[6])
         tables['ELR']['errAV_neb'] = float(data[_n3].split()[7])
         _n3 += 1
 
