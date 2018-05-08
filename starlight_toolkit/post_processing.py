@@ -3,7 +3,7 @@ from starlight_toolkit.synphot import resampler
 
 
 def convert_x_lambda(popx, wl, wl_0, base_wl, base_f):
-#FIXME: lacking implementation for exAv fits.
+#FIXME: lacking implementation for exAV fits.
     
     #Resample and normalize:
     base_wl_res = np.arange(np.round(base_wl[0]), np.round(base_wl[-1]), 1)
@@ -17,51 +17,6 @@ def convert_x_lambda(popx, wl, wl_0, base_wl, base_f):
     popx_wl =  np.array([popx[i]*base_f_norm/np.sum(popx[i]*base_f_norm) for i in range(len(popx))])
     
     return popx_wl
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 def calc_sfh(age_base, popmu, base_type='SSP'):
     if base_type=='SSP':

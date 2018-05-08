@@ -11,23 +11,12 @@ import numpy as np
 
 
 def calc_extinction(lamb, EBV, Rv=3.1):
-
-
     #Calculate Av and A_lambda:
     Av = Rv * EBV
     A_lambda = Av * CCM(lamb)
 
     return A_lambda
     
-    
-def get_EBV(l,b,EBVmap):
-    #Get the corresponting HEALPix index and the E(B-V) value:
-    index = hp.ang2pix(nside=2048,theta=(np.pi/2) - b,phi=l)
-    EBV = EBVmap[index]
-    
-    return EBV
-
-
 
 def extinction_corr(spectra,lambdas,EBV):
     '''

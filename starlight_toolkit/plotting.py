@@ -393,9 +393,9 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5)
     (0.02, 0.9), size=annotation_size)
     
 
-    p4.annotate(r'$A_V^Y$ = %0.2f'%(out['keywords']['Av']+out['keywords']['exAv']), \
+    p4.annotate(r'$A_V^Y$ = %0.2f'%(out['keywords']['AV']+out['keywords']['exAV']), \
     (0.27, 0.025), size=annotation_size)
-    p4.annotate(r'$A_V$ = %0.2f'%out['keywords']['Av'], \
+    p4.annotate(r'$A_V$ = %0.2f'%out['keywords']['AV'], \
     (0.27, 0.15), size=annotation_size)
     p4.annotate(r'$S/N=$ %0.2f'%out['keywords']['SN_snwin'], \
     (0.27, 0.3), size=annotation_size)
@@ -437,8 +437,8 @@ def plot_fit_complete(out, title=None, figsize=(7.75,6.5)
             p4.annotate(r'$x(A_V^Y) = {} \%, x(A_V^Y)H_\alpha$ = {} %'.format(out['keywords']['x(exAV>0)'], exHalpha), \
             (0.51, 0.15), size=annotation_size)
             
-            p4.annotate(r'$Av_{neb}=%0.2f$'\
-            %(out['keywords']['Av_neb']),(0.51, 0.025), size=annotation_size)
+            p4.annotate(r'$AV_{neb}=%0.2f$'\
+            %(out['keywords']['AV_neb']),(0.51, 0.025), size=annotation_size)
             
             p4.annotate(r'$\Delta\logR=%0.3f, \epsilon^{eff}_R=%1.2e$'\
             %(out['ELR']['logR_obs']-out['ELR']['logR_mod'], epsilonQ), \
