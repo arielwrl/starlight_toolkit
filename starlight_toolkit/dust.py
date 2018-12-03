@@ -232,7 +232,7 @@ def CCC(l, R_V=4.05):
     return q
 
 
-def Salim2018(l, delta=0, B=0, gamma=350., l_bump=2175):
+def Salim2018(l, delta=0, B=0, gamma=350., l_bump=2175.):
     '''
     Generates the modified Calzetti law from Salim et al. (2018), which
     is itself a modification of the Noll et al. (2009) and Kriek & Conroy (2011)
