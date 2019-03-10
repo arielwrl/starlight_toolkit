@@ -15,7 +15,7 @@ __all__ = ['resample_spectra', 'reshape_cube', 'find_nearest_index',
 
 def ReSamplingMatrixNonUniform(lorig, lresam, extrap=False):
     '''
-    Compute resampling matrix R_o2r, useful to convert a spectrum sampled at 
+    Compute resampling matrix R_o2r, useful to convert a spectrum sampled at
     wavelengths lorig to a new grid lresamp. Here, there is no necessity to have constant gris as on :py:func:`ReSamplingMatrix`.
     Input arrays lorig and lresamp are the bin centres of the original and final lambda-grids.
     ResampMat is a Nlresamp x Nlorig matrix, which applied to a vector F_o (with Nlorig entries) returns
@@ -32,7 +32,7 @@ def ReSamplingMatrixNonUniform(lorig, lresam, extrap=False):
             Original spectrum lambda array.
 
     lresam : array_like
-             Spectrum lambda array in which the spectrum should be sampled.        
+             Spectrum lambda array in which the spectrum should be sampled.
 
     extrap : boolean, optional
            Extrapolate values, i.e., values for lresam < lorig[0]  are set to match lorig[0] and
@@ -42,7 +42,7 @@ def ReSamplingMatrixNonUniform(lorig, lresam, extrap=False):
     Returns
     -------
     ResampMat : array_like
-                Resample matrix. 
+                Resample matrix.
 
     Examples
     --------
@@ -214,6 +214,37 @@ def resample_spectra(l_orig, l_resam, f_obs, f_err, badpix):
     f_flag[out_of_range] |= flags.no_data
     f_flag[badpix] |= flags.bad_pix
     return f_obs, f_err, f_flag
+
+
+
+def resample_spectra_syn(l_orig, l_resam, f_syn):
+    '''
+    Resample IFS wavelength-wise.
+
+    Parameters
+    ----------
+    l_orig : array
+        Original wavelength base of ``spectra``.
+
+    l_resam : array
+        Destination wavelength base.
+
+    f_syn : array
+        Synthetic spectra to be resampled.
+
+
+    Returns
+    -------
+    spectra_resam : array
+        Spectra resampled to ``l_resam``.
+    '''
+    R = ReSamplingMatrixNonUniform(l_orig, l_resam)
+    f_syn = np.tensordot(R, f_syn, (1, 0))
+    return f_syn
+
+
+
+
 
 
 def reshape_cube(f_obs, f_err, badpix, center, new_shape):
@@ -543,15 +574,15 @@ def hist_resample(bins_o, bins_r, v, density=False):
 
 def age_smoothing_kernel(log_age_base, log_tc, logtc_FWHM=0.1):
     '''
-    Given an array of logAgeBase = log10(base ages), and an array logTc of "continuous" log ages 
+    Given an array of logAgeBase = log10(base ages), and an array logTc of "continuous" log ages
     (presumably uniformly spaced), computes the smoothing kernel s_bc, which resamples and smooths
-    any function X(logAgeBase) to Y(logTc). 
-    If X = X_b, where b is the logAgeBase index, and Y = Y_c, with c as the index in logTc, then 
+    any function X(logAgeBase) to Y(logTc).
+    If X = X_b, where b is the logAgeBase index, and Y = Y_c, with c as the index in logTc, then
 
     Y_c = sum-over-all-b's of X_b s_bc
 
-    gives the smoothed & resampled version of X. 
-    The smoothing is performed in log-time, with gaussian function of FWHM = logtc_FWHM. 
+    gives the smoothed & resampled version of X.
+    The smoothing is performed in log-time, with gaussian function of FWHM = logtc_FWHM.
     Conservation of X is ensured (ie, X_b = sum-over-all-c's of Y_c s_bc).
 
     Notice that logTc and logtc_FWHM are given default values, in case of lazy function callers...
@@ -624,11 +655,11 @@ def light2mass_ini(popx, fbase_norm, Lobs_norm, q_norm, A_V):
     Lobs_norm : array
         Luminosity norm of ``popx``.
 
-    q_norm : float 
+    q_norm : float
         Ratio between the extinction in l_norm (where Lobs_norm
         is calculated) and ``A_V``.
 
-    A_V : array 
+    A_V : array
         Extinction in V band.
 
     Returns
