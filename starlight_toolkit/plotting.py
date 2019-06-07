@@ -344,8 +344,11 @@ def plot_fit_complete(out, title=None, figsize=(7.75, 6.5)
                 (0.02, 0.3), size=annotation_size)
     p4.annotate(r'$\chi^2/N_{eff}$=%0.2f' % out['keywords']['chi2/N_eff'],
                 (0.02, 0.45), size=annotation_size)
-    p4.annotate(r'$\chi^2_{\mathrm{OPT}}$=%0.2f' % out['keywords']['chi2_OPT'],
-                (0.02, 0.6), size=annotation_size)
+    try:
+        p4.annotate(r'$\chi^2_{\mathrm{OPT}}$=%0.2f' % out['keywords']['chi2_OPT'],
+                    (0.02, 0.6), size=annotation_size)
+    except:
+        pass
     p4.annotate(r'$\chi^2_{\mathrm{TOT}}$=%0.2f' % out['keywords']['chi2'],
                 (0.02, 0.75), size=annotation_size)
     p4.annotate(r'$\overline{\Delta}$=%0.2f%%' % out['keywords']['adev'],
