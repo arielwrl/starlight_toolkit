@@ -55,7 +55,7 @@ def plot_spec(out, ax=None, plot_obs=True, plot_error=True
         f_w0 = np.ma.masked_array(data=f_obs, mask=~w0)
         f_obs_flag = np.ma.masked_array(data=f_obs, mask=~flagged)
 
-        ax.plot(l_obs, f_obs_masked, color=obs_color, lw=0.5, label='$O_\lambda$')
+        ax.plot(l_obs, f_obs_masked, color=obs_color, lw=0.5, label=r'$O_\lambda$')
         ax.plot(l_obs, f_w0, color=w0_color, lw=0.5, label=r'$w_\lambda=0$')
         ax.plot(l_obs, f_obs_flag, color=flag_color, lw=0.5, label='$Flag$', zorder=10)
 
@@ -140,7 +140,7 @@ def plot_spec_simple(out, ax=None, plot_obs=True, plot_error=True,
         f_obs_masked = np.ma.masked_array(data=f_obs, mask=w0)
         f_w0 = np.ma.masked_array(data=f_obs, mask=~w0)
 
-        ax.plot(l_obs, f_obs_masked, color=obs_color, lw=0.5, label='$O_\lambda$')
+        ax.plot(l_obs, f_obs_masked, color=obs_color, lw=0.5, label=r'$O_\lambda$')
         ax.plot(l_obs, f_w0, color=w0_color, lw=0.5, label=r'$w_\lambda=0$')
 
     if plot_error == True:
