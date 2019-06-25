@@ -15,7 +15,7 @@ import matplotlib.gridspec as gridspec
 
 
 def plot_spec(out, ax=None, plot_obs=True, plot_error=True
-              , plot_labels=True, obs_color='k', syn_color='b', syn_lw=0.6, w0_color='y'
+              , plot_labels=True, obs_color='k', syn_color='b', syn_lw=0.6, obs_lw=0.5, w0_color='y'
               , clip_color='m', flag_color='g', syn_label=r'$M_\lambda$'
               , plot_PHO=True, PHO_color='cyan', PHO_label=r'$M_l$', PHO_obs_label=r'$O_l$'):
     """
@@ -55,9 +55,9 @@ def plot_spec(out, ax=None, plot_obs=True, plot_error=True
         f_w0 = np.ma.masked_array(data=f_obs, mask=~w0)
         f_obs_flag = np.ma.masked_array(data=f_obs, mask=~flagged)
 
-        ax.plot(l_obs, f_obs_masked, color=obs_color, lw=0.5, label=r'$O_\lambda$')
-        ax.plot(l_obs, f_w0, color=w0_color, lw=0.5, label=r'$w_\lambda=0$')
-        ax.plot(l_obs, f_obs_flag, color=flag_color, lw=0.5, label='$Flag$', zorder=10)
+        ax.plot(l_obs, f_obs_masked, color=obs_color, lw=obs_lw, label=r'$O_\lambda$')
+        ax.plot(l_obs, f_w0, color=w0_color, lw=obs_lw, label=r'$w_\lambda=0$')
+        ax.plot(l_obs, f_obs_flag, color=flag_color, lw=obs_lw, label='$Flag$', zorder=10)
 
         if clipped.sum() > 0:
             ax.scatter(l_obs, np.ma.masked_array(f_obs, mask=~clipped), color=clip_color,
@@ -103,7 +103,7 @@ def plot_spec(out, ax=None, plot_obs=True, plot_error=True
 
 
 def plot_spec_simple(out, ax=None, plot_obs=True, plot_error=True,
-                     plot_labels=True, obs_color='k', syn_color='b', syn_lw=0.6, w0_color='y',
+                     plot_labels=True, obs_color='k', syn_color='b', syn_lw=0.6, obs_lw=0.5, w0_color='y',
                      clip_color='m', syn_label=r'$M_\lambda$',
                      plot_PHO=True, PHO_color='cyan', PHO_edgecolor=None,
                      PHO_label=r'$M_l$', PHO_obs_label=r'$O_l$', PHO_markersize=5):
@@ -140,8 +140,8 @@ def plot_spec_simple(out, ax=None, plot_obs=True, plot_error=True,
         f_obs_masked = np.ma.masked_array(data=f_obs, mask=w0)
         f_w0 = np.ma.masked_array(data=f_obs, mask=~w0)
 
-        ax.plot(l_obs, f_obs_masked, color=obs_color, lw=0.5, label=r'$O_\lambda$')
-        ax.plot(l_obs, f_w0, color=w0_color, lw=0.5, label=r'$w_\lambda=0$')
+        ax.plot(l_obs, f_obs_masked, color=obs_color, lw=obs_lw, label=r'$O_\lambda$')
+        ax.plot(l_obs, f_w0, color=w0_color, lw=obs_lw, label=r'$w_\lambda=0$')
 
     if plot_error == True:
         ax.plot(l_obs, error, '--r', label=r'$\epsilon_\lambda$', lw=0.5)
