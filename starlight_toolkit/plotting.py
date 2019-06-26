@@ -14,7 +14,7 @@ import starlight_toolkit.post_processing as pp
 import matplotlib.gridspec as gridspec
 
 
-def plot_spec(out, ax=None, plot_obs=True, plot_error=True
+def plot_spec(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True
               , plot_labels=True, obs_color='k', syn_color='b', syn_lw=0.6, obs_lw=0.5, w0_color='y'
               , clip_color='m', flag_color='g', syn_label=r'$M_\lambda$'
               , plot_PHO=True, PHO_color='cyan', PHO_label=r'$M_l$', PHO_obs_label=r'$O_l$'):
@@ -69,8 +69,9 @@ def plot_spec(out, ax=None, plot_obs=True, plot_error=True
     if plot_labels is True:
         ax.set_ylabel(r'$F_\lambda/F_{\lambda%i}$' % out['keywords']['l_norm'], fontsize=11)
         ax.set_xlabel(r'$\lambda\mathrm{[\AA]}$', fontsize=11)
-
-    ax.plot(l_obs, f_syn, color=syn_color, lw=syn_lw, label=syn_label, zorder=5)
+    
+    if plot_syn is True:
+        ax.plot(l_obs, f_syn, color=syn_color, lw=syn_lw, label=syn_label, zorder=5)
 
     if (out['keywords']['IsPHOcOn'] != 0) & (plot_PHO == True):
         # Reading fluxes and calculating errors
@@ -102,7 +103,7 @@ def plot_spec(out, ax=None, plot_obs=True, plot_error=True
     ax.set_xlim(out['keywords']['l_ini'], out['keywords']['l_fin'])
 
 
-def plot_spec_simple(out, ax=None, plot_obs=True, plot_error=True,
+def plot_spec_simple(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True,
                      plot_labels=True, obs_color='k', syn_color='b', syn_lw=0.6, obs_lw=0.5, w0_color='y',
                      clip_color='m', syn_label=r'$M_\lambda$',
                      plot_PHO=True, PHO_color='cyan', PHO_edgecolor=None,
@@ -136,21 +137,22 @@ def plot_spec_simple(out, ax=None, plot_obs=True, plot_error=True,
 
     error = np.ma.masked_array(1 / f_wei, mask=w0)
 
-    if plot_obs == True:
+    if plot_obs is True:
         f_obs_masked = np.ma.masked_array(data=f_obs, mask=w0)
         f_w0 = np.ma.masked_array(data=f_obs, mask=~w0)
 
         ax.plot(l_obs, f_obs_masked, color=obs_color, lw=obs_lw, label=r'$O_\lambda$')
         ax.plot(l_obs, f_w0, color=w0_color, lw=obs_lw, label=r'$w_\lambda=0$')
 
-    if plot_error == True:
+    if plot_error is True:
         ax.plot(l_obs, error, '--r', label=r'$\epsilon_\lambda$', lw=0.5)
 
-    if plot_labels == True:
+    if plot_labels is True:
         ax.set_ylabel(r'$F_\lambda/F_{\lambda%i}$' % out['keywords']['l_norm'], fontsize=11)
         ax.set_xlabel(r'$\lambda\mathrm{[\AA]}$', fontsize=11)
 
-    ax.plot(l_obs, f_syn, color=syn_color, lw=syn_lw, label=syn_label, zorder=5)
+    if plot_syn is True:
+        ax.plot(l_obs, f_syn, color=syn_color, lw=syn_lw, label=syn_label, zorder=5)
 
     if (out['keywords']['IsPHOcOn'] != 0) & (plot_PHO == True):
         flux_mod = out['PHO']['fY_mod'] / out['keywords']['fobs_norm']
@@ -229,7 +231,7 @@ def plot_residual_spec(out, ax=None, residual_color='g'
         ax.set_ylabel(r'Residual', fontsize=10)
 
 
-def plot_sfh(out, ax):
+def plot_sfh(out, ax, plot_axlabels=True):
     # Calculating and plotting SFH:
     age_base = out['population']['popage_base']
     Z_base = out['population']['popZ_base']
@@ -251,8 +253,9 @@ def plot_sfh(out, ax):
         ax.plot(np.log10(agevec), cQHRvec, color='m', label=r'$Q_H$')
         ax.plot(np.log10(agevec), cQHRvec, '.m')
 
-    ax.set_xlabel(r'$\log t_*$', fontsize=10)
-    ax.set_ylabel('Cumulative Fraction [%]', fontsize=10)
+    if plot_axlabels is True:
+        ax.set_xlabel(r'$\log \; t_*$', fontsize=10)
+        ax.set_ylabel('Cumulative Fraction [%]', fontsize=10)
 
 
 def plot_fit_complete(out, title=None, figsize=(7.75, 6.5)
