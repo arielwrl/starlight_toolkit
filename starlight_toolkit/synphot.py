@@ -44,20 +44,21 @@ def synflux(wl, flux, filter_curve):
     return synflux
 
 
-def synmag(wl, flux, error, flag, filter_curve, badpix_tolerance=0.25, interpolate_bad_pixels=False):
+def synmag(wl, flux, filter_curve, error=None, flag=None, badpix_tolerance=0.25, interpolate_bad_pixels=False):
 
     # Reading filter if needed:
     if type(filter_curve) is str: 
-        wl_filter, T = np.genfromtxt(filter_file).transpose()
+        wl_filter, T = np.genfromtxt(filter_curve).transpose()
     else:
         wl_filter, T = filter_curve[0], filter_curve[1]
 
     # Checking bad pixels:
-    filter_range = (wl > wl_filter[0]) & (wl < wl_filter[-1])
-    if flag[filter_range].sum() > badpix_tolerance * len(flag[filter_range]):
-        badpix = True
-    else:
-        badpix = False
+    if flag is not None:
+        filter_range = (wl > wl_filter[0]) & (wl < wl_filter[-1])
+        if flag[filter_range].sum() > badpix_tolerance * len(flag[filter_range]):
+            badpix = True
+        else:
+            badpix = False
 
     # Resampling filter and spectrum to 1 Angstrom intervals:
     wl_new = np.arange(np.round(wl_filter[0]) - 5, np.round(wl_filter[-1]) + 5)
@@ -74,9 +75,15 @@ def synmag(wl, flux, error, flag, filter_curve, badpix_tolerance=0.25, interpola
 
     # Calculate magnitudes and errors:
     m_ab = -2.5 * np.log10(np.trapz(flux * T * wl_new, dx=1) / np.trapz(T / wl_new, dx=1)) - 2.41
-    m_ab_error = 1.0857 * np.sqrt(np.sum(T**2 * error**2 * wl_new ** 2)) / np.sum(flux * T * wl_new)
 
-    return m_ab, m_ab_error, badpix
+    if error is not None:
+        m_ab_error = 1.0857 * np.sqrt(np.sum(T**2 * error**2 * wl_new ** 2)) / np.sum(flux * T * wl_new)
+        if flag is not None:
+            return m_ab, m_ab_error, badpix
+        else:
+            return m_ab, m_ab_error
+    else:
+        return m_ab
 
 
 def pivot_wavelength(filter_curve):
