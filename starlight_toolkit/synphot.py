@@ -67,11 +67,13 @@ def synmag(wl, flux, filter_curve, error=None, flag=None, badpix_tolerance=0.25,
     if interpolate_bad_pixels is True:
         T = resampler(wl_filter, T, wl_new)
         flux = resampler(wl[~flag], flux[~flag], wl_new) # Excluding bad pixels
-        error = resampler(wl[~flag], error[~flag], wl_new) # Excluding bad pixels
+        if error is not None:
+            error = resampler(wl[~flag], error[~flag], wl_new) # Excluding bad pixels
     else: 
         T = resampler(wl_filter, T, wl_new)
         flux = resampler(wl, flux, wl_new) # Including bad pixels
-        error = resampler(wl, error, wl_new) # Including bad pixels
+        if error is not None:
+            error = resampler(wl, error, wl_new) # Including bad pixels
 
     # Calculate magnitudes and errors:
     m_ab = -2.5 * np.log10(np.trapz(flux * T * wl_new, dx=1) / np.trapz(T / wl_new, dx=1)) - 2.41
