@@ -234,6 +234,7 @@ def plot_residual_spec(out, ax=None, residual_color='g'
 def plot_sfh(out, ax, plot_axlabels=True):
     # Calculating and plotting SFH:
     age_base = out['population']['popage_base']
+    age_base_upp = out['population']['popage_base_upp']
     Z_base = out['population']['popZ_base']
     popx = out['population']['popx']
     popmu_ini = out['population']['popmu_ini']
@@ -324,12 +325,13 @@ def plot_fit_complete(out, title=None, figsize=(7.75, 6.5)
     # Calculating mass and light weighted ages:
 
     age_base = out['population']['popage_base']
+    age_base_upp = out['population']['popage_base_upp']
     Z_base = out['population']['popZ_base']
     popx = out['population']['popx']
     popmu_cor = out['population']['popmu_cor']
 
-    atflux = pp.calc_atflux(age_base, popx)
-    atmass = pp.calc_atmass(age_base, popmu_cor)
+    atflux = pp.calc_atflux(age_base, age_base_upp, popx)
+    atmass = pp.calc_atmass(age_base, age_base_upp, popmu_cor)
     Zflux = pp.calc_aZflux(Z_base, popx, 0.02)
     Zmass = pp.calc_aZmass(Z_base, popmu_cor, 0.02)
 
