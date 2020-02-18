@@ -231,11 +231,29 @@ def plot_residual_spec(out, ax=None, residual_color='g'
         ax.set_ylabel(r'Residual', fontsize=10)
 
 
-def plot_sfh(out, ax, plot_axlabels=True):
-    # Calculating and plotting SFH:
+def plot_sfh(out, ax=None, plot_axlabels=True):
+    """
+
+    Plot's STARLIGHT's star-formation histories
+
+    Parameters
+    ----------
+
+    out: dictionary
+        STARLIGHT output dictionary
+
+    ax: matplotlib axis
+        axis on which to plot
+
+    plot_axlabels: boolean
+        wether to plot labels or not
+
+    """
+
+    if ax is None:
+        ax = ax.gca()
+
     age_base = out['population']['popage_base']
-    age_base_upp = out['population']['popage_base_upp']
-    Z_base = out['population']['popZ_base']
     popx = out['population']['popx']
     popmu_ini = out['population']['popmu_ini']
 
