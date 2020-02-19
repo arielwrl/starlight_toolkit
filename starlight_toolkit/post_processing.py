@@ -75,7 +75,7 @@ def calc_atflux(age_base, age_base_upp, popx):
         log_t2 = np.log10(age_base_upp)
         log_t  = (log_t1 + log_t2) / 2.0
     else:
-        log_t  = np.log10(age_base)        
+        log_t = np.log10(age_base)
     return np.sum(log_t * popx) / popx.sum()
 
 

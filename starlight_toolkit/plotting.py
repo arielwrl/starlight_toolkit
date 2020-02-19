@@ -342,16 +342,30 @@ def plot_fit_complete(out, title=None, figsize=(7.75, 6.5)
 
     # Calculating mass and light weighted ages:
 
-    age_base = out['population']['popage_base']
-    age_base_upp = out['population']['popage_base_upp']
-    Z_base = out['population']['popZ_base']
-    popx = out['population']['popx']
-    popmu_cor = out['population']['popmu_cor']
+    if 'popage_base_upp' in out['population'].keys():
 
-    atflux = pp.calc_atflux(age_base, age_base_upp, popx)
-    atmass = pp.calc_atmass(age_base, age_base_upp, popmu_cor)
-    Zflux = pp.calc_aZflux(Z_base, popx, 0.02)
-    Zmass = pp.calc_aZmass(Z_base, popmu_cor, 0.02)
+        age_base = out['population']['popage_base']
+        age_base_upp = out['population']['popage_base_upp']
+        Z_base = out['population']['popZ_base']
+        popx = out['population']['popx']
+        popmu_cor = out['population']['popmu_cor']
+
+        atflux = pp.calc_atflux(age_base, age_base_upp, popx)
+        atmass = pp.calc_atmass(age_base, age_base_upp, popmu_cor)
+        Zflux = pp.calc_aZflux(Z_base, popx, 0.02)
+        Zmass = pp.calc_aZmass(Z_base, popmu_cor, 0.02)
+
+    else:
+
+        age_base = out['population']['popage_base']
+        Z_base = out['population']['popZ_base']
+        popx = out['population']['popx']
+        popmu_cor = out['population']['popmu_cor']
+
+        atflux = pp.calc_atflux(age_base=age_base, popx=popx)
+        atmass = pp.calc_atmass(age_base=age_base, popmu=popmu_cor)
+        Zflux = pp.calc_aZflux(Z_base, popx, 0.02)
+        Zmass = pp.calc_aZmass(Z_base, popmu_cor, 0.02)
 
     # Annotating stuff:
 
