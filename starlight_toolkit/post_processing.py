@@ -69,7 +69,7 @@ def calc_QHRpop_x(age_base, popQHR):
     return cQHRvec[::-1]
 
 
-def calc_atflux(age_base, age_base_upp=None, popx):
+def calc_atflux(age_base=None, age_base_upp=None, popx):
     if age_base_upp is not None:
         log_t1 = np.log10(age_base)
         log_t2 = np.log10(age_base_upp)
@@ -79,7 +79,7 @@ def calc_atflux(age_base, age_base_upp=None, popx):
     return np.sum(log_t * popx) / popx.sum()
 
 
-def calc_atmass(age_base, age_base_upp=None, popmu):
+def calc_atmass(age_base=None, age_base_upp=None, popmu):
     if age_base_upp is not None:
         log_t1 = np.log10(age_base)
         log_t2 = np.log10(age_base_upp)
