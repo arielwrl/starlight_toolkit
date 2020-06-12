@@ -56,7 +56,6 @@ def read_output_file(filename, read_chains=False):
     if not os.path.exists(filename):
         raise Exception('File not found: %s' % filename)
 
-
     mode = 'rt'
     if filename.endswith('.gz'):
         open_func = gzip.open
@@ -67,8 +66,8 @@ def read_output_file(filename, read_chains=False):
     with open_func(filename, mode) as f:
         data = [l.split() for l in f.read().splitlines()]
 
-    keywords           = {}
-    tables             = {}
+    keywords = {}
+    tables = {}
     tables['keywords'] = keywords
 
     fileVersion = data[1][5]

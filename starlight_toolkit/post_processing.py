@@ -43,20 +43,6 @@ def calc_sfh_x(age_base, popx):
     return agevec, sfh, csfh[::-1]
 
 
-def calc_Zfh(age_base, Z_base, popmu, Z_sun):
-    #A vector with unique ages:
-    agevec = np.unique(age_base)
-    #The SFH:
-    Zfh  = [(popmu[age_base==agevec[i]] * np.log10(Z_base[age_base==agevec[i]]/Z_sun)).sum()/popmu[age_base==agevec[i]].sum() for i in range(len(agevec))]
-    for i in range(len(Zfh)):
-        if np.isnan(Zfh[i]):
-            Zfh[i] = 0
-    #The cumulative ZFH:
-    cZfh = np.cumsum(Zfh[::-1])
-    return agevec, Zfh, cZfh[::-1]
-
-
-
 def calc_QHRpop_x(age_base, popQHR):
     #A vector with unique ages:
     agevec = np.unique(age_base)

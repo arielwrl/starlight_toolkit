@@ -224,7 +224,7 @@ def plot_residual_spec(out, ax=None, residual_color='g'
     x = np.linspace(l_obs[0], l_obs[-1])
     y = np.zeros_like(x)
 
-    plt.plot(x, y, '--k')
+    ax.plot(x, y, '--k')
 
     if plot_labels is True:
         ax.set_xlabel(r'$\lambda[\mathrm{\AA}]$', fontsize=10)
@@ -293,7 +293,13 @@ def plot_fit_complete(out, title=None, figsize=(7.75, 6.5)
     gs1 = gridspec.GridSpec(3, 3)
     gs1.update(bottom=0.47, top=0.96, hspace=0.05, right=0.96)
 
+    gs2 = gridspec.GridSpec(1, 3)
+    gs2.update(top=0.38, bottom=0.08, hspace=0.05, right=0.96, wspace=0.02)
+
     p1 = plt.subplot(gs1[0:2, :])
+    p2 = plt.subplot(gs1[2, :], sharex=p1)
+    p3 = plt.subplot(gs2[0, 0])
+    p4 = plt.subplot(gs2[0, 1:3])
 
     plot_spec(out, ax=p1, plot_labels=False)
     p1.set_ylabel(r'$F_\lambda/F_{\lambda%i}$' % out['keywords']['l_norm']
@@ -312,16 +318,11 @@ def plot_fit_complete(out, title=None, figsize=(7.75, 6.5)
     p1.legend(frameon=False, fontsize=9, ncol=2, loc=legend_loc)
 
     # Plot residual spectrum:
-    p2 = plt.subplot(gs1[2, :], sharex=p1)
     plot_residual_spec(out, ax=p2)
 
     p2.set_ylim(-0.15, 0.15)
 
     # Plotting SFH:
-    gs2 = gridspec.GridSpec(1, 3)
-    gs2.update(top=0.38, bottom=0.08, hspace=0.05, right=0.96, wspace=0.02)
-
-    p3 = plt.subplot(gs2[0, 0])
 
     plot_sfh(out, p3)
 
@@ -333,12 +334,10 @@ def plot_fit_complete(out, title=None, figsize=(7.75, 6.5)
     p3.set_xlim(5.8, 11)
 
     # Annotations:
-    p4 = plt.subplot(gs2[0, 1:3])
 
     # Removing ticks:
-    plt.tick_params(axis='both', bottom='off'
-                    , top='off', labelbottom='off', right='off', left='off'
-                    , labelleft='off')
+    p4.set_xticks([])
+    p4.set_yticks([])
 
     # Calculating mass and light weighted ages:
 
@@ -350,8 +349,8 @@ def plot_fit_complete(out, title=None, figsize=(7.75, 6.5)
         popx = out['population']['popx']
         popmu_cor = out['population']['popmu_cor']
 
-        atflux = pp.calc_atflux(age_base, age_base_upp, popx)
-        atmass = pp.calc_atmass(age_base, age_base_upp, popmu_cor)
+        atflux = pp.calc_atflux(age_base, popx, age_base_upp)
+        atmass = pp.calc_atmass(age_base, popmu_cor, age_base_upp)
         Zflux = pp.calc_aZflux(Z_base, popx, 0.02)
         Zmass = pp.calc_aZmass(Z_base, popmu_cor, 0.02)
 
