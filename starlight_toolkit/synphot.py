@@ -92,7 +92,7 @@ def pivot_wavelength(filter_curve):
 
     # Reading filter if needed:
     if type(filter_curve) is str: 
-        wl_filter, T = np.genfromtxt(filter_file).transpose()
+        wl_filter, T = np.genfromtxt(filter_curve).transpose()
     else:
         wl_filter, T = filter_curve[0], filter_curve[1]
     
