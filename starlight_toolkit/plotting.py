@@ -189,7 +189,7 @@ def plot_filter(filter_file, ax=None, filter_color='k'
     """
     Plots filter transmission curve.
 
-    To plot filters in the restframe, you should provide the galaxy's redshift,
+    To plot filters in the observed frame, you should provide the galaxy's redshift,
     which is set to zero as default.
 
     The variable scale_factor will be multiplied by the filter's transmission.
@@ -277,9 +277,9 @@ def plot_sfh(out, ax=None, plot_axlabels=True):
         ax.set_ylabel('Cumulative Fraction [%]', fontsize=10)
 
 
-def plot_fit_complete(out, title=None, figsize=(7.75, 6.5)
-                      , out_fig_fname=None, out_dpi=None
-                      , legend_loc='best'):
+def plot_fit_complete(out, title=None, figsize=(7.75, 6.5), out_fig_fname=None, out_dpi=None, legend_loc='best',
+                      wl_range=None):
+
     if type(out) is str:
         try:
             out = stout.read_output_file(out)
@@ -302,12 +302,13 @@ def plot_fit_complete(out, title=None, figsize=(7.75, 6.5)
     p4 = plt.subplot(gs2[0, 1:3])
 
     plot_spec(out, ax=p1, plot_labels=False)
-    p1.set_ylabel(r'$F_\lambda/F_{\lambda%i}$' % out['keywords']['l_norm']
-                  , fontsize=11)
-    plt.tick_params(axis='x', bottom='off'
-                    , labelbottom='off')
+    p1.set_ylabel(r'$F_\lambda/F_{\lambda%i}$' % out['keywords']['l_norm'], fontsize=11)
 
+    p1.axes.xaxis.set_visible(False)
     p1.set_ylim(0, 2.25)
+
+    if wl_range is not None:
+        p1.set_xlim(wl_range[0], wl_range[1])
 
     if title is None:
         p1.set_title(out['keywords']['arq_synt'])

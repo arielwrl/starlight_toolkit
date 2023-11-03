@@ -105,8 +105,10 @@ def pivot_wavelength(filter_curve):
 
 def effective_wavelength(wl, spectrum, filter_curve):
     '''
+
     This is defined as the mean wavelength of the filter weighted by transmission of the filter
     and spectrum of the source
+
     '''
     
     # Reading filter if needed:
