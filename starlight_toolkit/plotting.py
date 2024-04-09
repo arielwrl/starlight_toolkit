@@ -1,12 +1,3 @@
-"""
-
-Tools for plotting Starlight output.
-
-ariel@ufsc
-Created on 05/30/2017
-
-"""
-
 import numpy as np
 import matplotlib.pyplot as plt
 import starlight_toolkit.output as stout
@@ -14,19 +5,38 @@ import starlight_toolkit.post_processing as pp
 import matplotlib.gridspec as gridspec
 
 
-def plot_spec(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True
-              , plot_labels=True, obs_color='k', syn_color='b', syn_lw=0.6, obs_lw=0.5, w0_color='y'
-              , clip_color='m', flag_color='g', syn_label=r'$M_\lambda$'
-              , plot_PHO=True, PHO_color='cyan', PHO_label=r'$M_l$', PHO_obs_label=r'$O_l$'):
+def plot_spec(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True, plot_labels=True, 
+              obs_color='k', syn_color='b', syn_lw=0.6, obs_lw=0.5, w0_color='y', clip_color='m', 
+              flag_color='g', syn_label=r'$M_\lambda$', plot_PHO=True, PHO_color='cyan', 
+              PHO_label=r'$M_l$', PHO_obs_label=r'$O_l$'):
     """
-    Quick plots for Starlight output files.
-    Parameters
-    ----------
-        out : Starlight output dictionary or path to output file;
-        ax  : matplotlib axis
-                Axis to draw plot;
-        plot_obs : boolean
-                If True, observed spectrum will be plotted;
+    Plots the spectra and photometric information.
+
+    Parameters:
+        out (str or dict): Either a Starlight output file name or a dictionary containing the extracted information
+                           (output from `starlight_toolkit.output.read_output_file`).
+        ax (matplotlib.axes.Axes, optional): The axis on which to plot the data. If None, the current axis is used. Defaults to None.
+        plot_obs (bool, optional): Whether to plot the observed spectrum. Defaults to True.
+        plot_syn (bool, optional): Whether to plot the synthetic spectrum. Defaults to True.
+        plot_error (bool, optional): Whether to plot the error spectrum. Defaults to True.
+        plot_labels (bool, optional): Whether to plot axis labels. Defaults to True.
+        obs_color (str, optional): Color of the observed spectrum. Defaults to 'k'.
+        syn_color (str, optional): Color of the synthetic spectrum. Defaults to 'b'.
+        syn_lw (float, optional): Line width of the synthetic spectrum. Defaults to 0.6.
+        obs_lw (float, optional): Line width of the observed spectrum. Defaults to 0.5.
+        w0_color (str, optional): Color of the spectral points with zero weight. Defaults to 'y'.
+        clip_color (str, optional): Color of the clipped spectral points. Defaults to 'm'.
+        flag_color (str, optional): Color of the flagged spectral points. Defaults to 'g'.
+        syn_label (str, optional): Label for the synthetic spectrum. Defaults to r'$M_\lambda$'.
+        plot_PHO (bool, optional): Whether to plot photometric data. Defaults to True.
+        PHO_color (str, optional): Color of the photometric data. Defaults to 'cyan'.
+        PHO_label (str, optional): Label for the photometric data. Defaults to r'$M_l$'.
+        PHO_obs_label (str, optional): Label for the observed photometric data. Defaults to r'$O_l$'.
+
+    Raises:
+        ValueError: If the output file does not contain the expected information.
+        IndexError: If the output file format is not as expected.
+        Exception: For other unexpected errors while reading the output file.
     """
 
     if ax is None:
@@ -109,15 +119,36 @@ def plot_spec_simple(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True
                      plot_PHO=True, PHO_color='cyan', PHO_edgecolor=None,
                      PHO_label=r'$M_l$', PHO_obs_label=r'$O_l$', PHO_markersize=5):
     """
-    Quick plots for Starlight output files.
-    Parameters
-    ----------
-        ax  : matplotlib axis
-        out : Starlight output dictionary or path to output file;
-        plot_obs : boolean
-                If True, observed spectrum will be plotted;
-    """
+    Simplified plots for Starlight output.
 
+    Parameters:
+        out (str or dict): Either a Starlight output file name or a dictionary containing the extracted information
+                           (output from `starlight_toolkit.output.read_output_file`).
+        ax (matplotlib.axes.Axes, optional): The axis on which to plot the data. If None, the current axis is used. Defaults to None.
+        plot_obs (bool, optional): Whether to plot the observed spectrum. Defaults to True.
+        plot_syn (bool, optional): Whether to plot the synthetic spectrum. Defaults to True.
+        plot_error (bool, optional): Whether to plot the error spectrum. Defaults to True.
+        plot_labels (bool, optional): Whether to plot axis labels. Defaults to True.
+        obs_color (str, optional): Color of the observed spectrum. Defaults to 'k'.
+        syn_color (str, optional): Color of the synthetic spectrum. Defaults to 'b'.
+        syn_lw (float, optional): Line width of the synthetic spectrum. Defaults to 0.6.
+        obs_lw (float, optional): Line width of the observed spectrum. Defaults to 0.5.
+        w0_color (str, optional): Color of the spectral points with zero weight. Defaults to 'y'.
+        clip_color (str, optional): Color of the clipped spectral points. Defaults to 'm'.
+        syn_label (str, optional): Label for the synthetic spectrum. Defaults to r'$M_\lambda$'.
+        plot_PHO (bool, optional): Whether to plot photometric data. Defaults to True.
+        PHO_color (str, optional): Color of the photometric data. Defaults to 'cyan'.
+        PHO_edgecolor (str, optional): Edge color of the photometric markers. If None, defaults to PHO_color. Defaults to None.
+        PHO_label (str, optional): Label for the photometric data. Defaults to r'$M_l$'.
+        PHO_obs_label (str, optional): Label for the observed photometric data. Defaults to r'$O_l$'.
+        PHO_markersize (int, optional): Marker size for photometric data. Defaults to 5.
+
+    Raises:
+        ValueError: If the output file does not contain the expected information.
+        IndexError: If the output file format is not as expected.
+        Exception: For other unexpected errors while reading the output file.
+    """
+   
     if ax is None:
         ax = plt.gca()
 
@@ -183,7 +214,6 @@ def plot_spec_simple(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True
     ax.set_xlim(out['keywords']['l_ini'], out['keywords']['l_fin'])
 
 
-
 def plot_filter(filter_file, ax=None, filter_color='k'
                 , filter_ls='dashed', redshift=0, scale_factor=1):
     """
@@ -194,8 +224,15 @@ def plot_filter(filter_file, ax=None, filter_color='k'
 
     The variable scale_factor will be multiplied by the filter's transmission.
 
+    Parameters:
+        filter_file (str): Path to the file containing filter transmission curve (wavelength, transmission).
+        ax (matplotlib.axes.Axes, optional): The axis on which to plot the filter. If None, the current axis is used. Defaults to None.
+        filter_color (str, optional): Color of the filter curve. Defaults to 'k'.
+        filter_ls (str, optional): Linestyle of the filter curve. Defaults to 'dashed'.
+        redshift (float, optional): Redshift of the galaxy. Defaults to 0.
+        scale_factor (float, optional): Scaling factor for the filter's transmission. Defaults to 1.
     """
-
+    
     if ax is None:
         ax = plt.gca()
 
@@ -209,6 +246,16 @@ def plot_filter(filter_file, ax=None, filter_color='k'
 
 def plot_residual_spec(out, ax=None, residual_color='g'
                        , plot_labels=True):
+    """
+    Plots the residual spectrum.
+
+    Parameters:
+        out (dict): Dictionary containing Starlight output data.
+        ax (matplotlib.axes.Axes, optional): The axis on which to plot the residual spectrum. If None, the current axis is used. Defaults to None.
+        residual_color (str, optional): Color of the residual spectrum curve. Defaults to 'g'.
+        plot_labels (bool, optional): Whether to plot axis labels. Defaults to True.
+    """
+    
     if ax is None:
         ax = plt.gca()
 
@@ -233,21 +280,12 @@ def plot_residual_spec(out, ax=None, residual_color='g'
 
 def plot_sfh(out, ax=None, plot_axlabels=True):
     """
+    Plots Starlight star-formation histories.
 
-    Plot's STARLIGHT's star-formation histories
-
-    Parameters
-    ----------
-
-    out: dictionary
-        STARLIGHT output dictionary
-
-    ax: matplotlib axis
-        axis on which to plot
-
-    plot_axlabels: boolean
-        wether to plot labels or not
-
+    Parameters:
+        out (dict): Dictionary containing the output data.
+        ax (matplotlib.axes.Axes, optional): The axis on which to plot the SFH. If None, the current axis is used. Defaults to None.
+        plot_axlabels (bool, optional): Whether to plot axis labels. Defaults to True.
     """
 
     if ax is None:
@@ -279,6 +317,25 @@ def plot_sfh(out, ax=None, plot_axlabels=True):
 
 def plot_fit_complete(out, title=None, figsize=(7.75, 6.5), out_fig_fname=None, out_dpi=None, legend_loc='best',
                       wl_range=None):
+    """
+    Plots a complete diagnostic of the fit including spectrum, residual spectrum, star formation history
+    and best-fit parameters.
+
+    Parameters:
+        out (dict or str): Dictionary containing the output data or path to the output file.
+        title (str, optional): Title of the plot. Defaults to None.
+        figsize (tuple, optional): Figure size in inches. Defaults to (7.75, 6.5).
+        out_fig_fname (str, optional): File name to save the figure. Defaults to None (not saved).
+        out_dpi (int, optional): Dots per inch for saving the figure. Defaults to None.
+        legend_loc (str, optional): Location of the legend. Defaults to 'best'.
+        wl_range (tuple, optional): Wavelength range to plot. Defaults to None.
+        
+    Returns:
+        matplotlib.axes.Axes: Axes for spectrum.
+        matplotlib.axes.Axes: Axes for residual spectrum.
+        matplotlib.axes.Axes: Axes for star formation history.
+        matplotlib.axes.Axes: Axes for annotations.
+    """
 
     if type(out) is str:
         try:
@@ -289,7 +346,6 @@ def plot_fit_complete(out, title=None, figsize=(7.75, 6.5), out_fig_fname=None, 
     fig = plt.figure(figsize=figsize)
 
     # Plot spectrum:
-
     gs1 = gridspec.GridSpec(3, 3)
     gs1.update(bottom=0.47, top=0.96, hspace=0.05, right=0.96)
 
@@ -340,8 +396,7 @@ def plot_fit_complete(out, title=None, figsize=(7.75, 6.5), out_fig_fname=None, 
     p4.set_xticks([])
     p4.set_yticks([])
 
-    # Calculating mass and light weighted ages:
-
+    # Calculating mass- and light-weighted ages:
     if 'popage_base_upp' in out['population'].keys():
 
         age_base = out['population']['popage_base']
@@ -368,7 +423,6 @@ def plot_fit_complete(out, title=None, figsize=(7.75, 6.5), out_fig_fname=None, 
         Zmass = pp.calc_aZmass(Z_base, popmu_cor, 0.02)
 
     # Annotating stuff:
-
     annotation_size = 9
 
     p4.grid(False)

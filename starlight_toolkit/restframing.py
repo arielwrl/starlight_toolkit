@@ -1,27 +1,18 @@
 import numpy as np
 
-def wavelength_apply_redshift(wl, z, dest='rest'):
-    '''
-    Apply redshift correction to wavelength from to rest or observed frames.
+def apply_redshift(wl, z, dest='rest'):
+    """
+    Apply redshift to wavelengths.
 
-    Parameters
-    ----------
-    l : array
-        Wavelength array.
+    Parameters:
+        wl (ndarray): Array of input wavelengths.
+        z (float or ndarray): Redshift value(s).
+        dest (str, optional): Destination frame, either 'rest' (default) or 'observed'.
 
-    z : array or float.
-        Redshift.
-
-    dest : string, optional
-        Destination frame. Either ``'rest'`` or ``'observed'``.
-        Default: ``'rest'``.
-
-    Returns
-    -------
-    l_red : array
-        Redshifted wavelength array. If ``z`` is an array,
-        ``l_red`` will have the shape ``l.shape + z.shape``.
-    '''
+    Returns:
+        ndarray: Redshifted wavelengths.
+    """
+   
     if dest == 'rest':
         op = lambda x, y: x / y
     elif dest == 'observed':
@@ -34,6 +25,19 @@ def wavelength_apply_redshift(wl, z, dest='rest'):
 
 
 def spectra2restframe(l_obs, f_obs, z):
-    l_rest = wavelength_apply_redshift(l_obs, z)
+    """
+    Shifts observed spectra to rest frame.
+
+    Parameters:
+        l_obs (ndarray): Array of observed wavelengths.
+        f_obs (ndarray): Array of observed fluxes.
+        z (float): Redshift value.
+
+    Returns:
+        ndarray: Rest-frame wavelengths.
+        ndarray: Rest-frame fluxes.
+    """
+ 
+    l_rest = apply_redshift(l_obs, z)
     f_rest = f_obs * (1.0 + z)
     return l_rest, f_rest

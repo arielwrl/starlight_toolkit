@@ -1,9 +1,3 @@
-'''
-Created on 22/06/2015
-
-@author: andre
-'''
-
 from . import flags
 import numpy as np
 

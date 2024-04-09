@@ -6,52 +6,23 @@ from astropy.table import Table
 
 
 def read_output_file(filename, read_chains=False):
-    '''
-    Reads STARLIGHT output tables to a dictionary.
+    """
+    Reads a Starlight output file and extracts all relevant information.
 
-    Designed for STARLIGHT version v06r1.
+    Parameters:
+        filename (str): The name of the output file to be read.
+        read_chains (bool, optional): Whether to read full Markov chains information. Defaults to False.
 
-    Parameters
-    ----------
-    filename : str
-        Name of STARLIGHT output file
+    Returns:
+        dict: A dictionary containing Starlight output information. The dictionary has the following keys:
+            - 'keywords': A dictionary containing general information and parameters extracted from the file header.
+            - 'data': An Astropy Table organizing the parameters for each stellar population.
+            - If read_chains is True:
+                - 'chains': A dictionary containing full information on Markov chains.
 
-    Returns
-    -------
-    tables : dict
-        Dictionary of STARLIGHT output
-
-    '''
-
-# --------------------------------------------------------------------
-#          Some notes on the structure of STARLIGHT output files
-# --------------------------------------------------------------------
-#
-#  Considering the 1st line to be number 1 (ATT: **subtract** 1 in python!!):
-#      * The pop-vector block starts at line 64 and has N_base entries from n1 to n2:
-#         n1 = 64
-#         n2 = n1 + N_base - 1
-#
-#     * The Average & Chains light fractions block starts at line 64 + N_base + 5 and has N_par entries
-#         n1 = 64 + N_base + 5
-#         n2 = n1 + N_par - 1, where N_par = N_base + 2 + N_exAV
-#     * then comes the chain-LAx-pop-vectors block, whose N_base elements go from
-#         n1 = 64 + N_base + 5 + N_par + 2
-#         n2 = n1 + N_base - 1
-#     * and the chain-mu_cor-pop-vectors block, whose N_base elements go from
-#          n1 = 64 + N_base + 5 + N_par + 2 + N_base + 2
-#         n2 = n1 + N_base - 1
-#     * The chain chi2's and masses are in lines
-#          64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 2, and
-#          64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 3, respectively,
-#          followed by 2 lines with v_0_before_EX0s and v_d_before_EX0s.
-#
-#     * The specral block starts with new line containing Nl_obs, index_Best_SSP,
-#      and i_SaveBestSingleCompFit at
-#           64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 10
-#     * The l_obs , f_obs , f_syn , f_wei , Best_f_SSP info has Nl_obs entries, running from
-#          n1 = 64 + N_base + 5 + N_par + 2 + N_base + 2 + N_base + 11
-#         n2 = n1 + Nl_obs -1
+    Raises:
+        FileNotFoundError: If the specified filename does not exist.
+    """
 
     if not os.path.exists(filename):
         raise Exception('File not found: %s' % filename)
@@ -72,103 +43,92 @@ def read_output_file(filename, read_chains=False):
 
     fileVersion = data[1][5]
     keywords['file_version'] = fileVersion
-    keywords['arq_synt']     = os.path.basename(filename)
+    keywords['arq_synt'] = os.path.basename(filename)
 
-
-    #Setting IsELROn in case QHRc are off.
+    # Setting IsELROn in case QHRc are off.
     keywords['IsELROn'] = 0
 
-    #--------------------------------------------------------------------
-    # Read "header": general info plus pop-vectors
-    #--------------------------------------------------------------------
-
     # Some input info
-    keywords['arq_spec']          = data[5][0]
-    keywords['obs_dir']           = data[5][3]
-    keywords['arq_base']          = data[6][0]
-    keywords['arq_masks']         = data[7][0]
-    keywords['arq_config']        = data[8][0]
-    keywords['N_base']            = int(data[9][0])
+    keywords['arq_spec'] = data[5][0]
+    keywords['obs_dir'] = data[5][3]
+    keywords['arq_base'] = data[6][0]
+    keywords['arq_masks'] = data[7][0]
+    keywords['arq_config'] = data[8][0]
+    keywords['N_base'] = int(data[9][0])
     keywords['N_exAV_components'] = int(data[10][0])
-    keywords['N_exAV']            = int(data[10][1])
-
+    keywords['N_exAV'] = int(data[10][1])
     keywords['IsCFlawOn'] = int(data[10][2])
-    keywords['a0_CFl']    = float(data[10][3])
-    keywords['a1_CFl']    = float(data[10][4])
-
-
-    keywords['IsFIRcOn']          = int(data[11][0])
-    keywords['IsQHRcOn']          = int(data[11][1])
-    keywords['IsPHOcOn']          = int(data[11][2])
+    keywords['a0_CFl'] = float(data[10][3])
+    keywords['a1_CFl'] = float(data[10][4])
+    keywords['IsFIRcOn'] = int(data[11][0])
+    keywords['IsQHRcOn'] = int(data[11][1])
+    keywords['IsPHOcOn'] = int(data[11][2])
     keywords['IsOPTimize_fn_OPT'] = int(data[11][3])
-
-
-    keywords['ETC_ESM']   = data[12][0]
+    keywords['ETC_ESM'] = data[12][0]
     keywords['ETC_gamma'] = float(data[12][1])
-    keywords['Np_FIR']    = int(data[12][2])
-    keywords['Np_PHO']    = int(data[12][4])
-    keywords['Np_QHR']    = int(data[12][3])
-
+    keywords['Np_FIR'] = int(data[12][2])
+    keywords['Np_PHO'] = int(data[12][4])
+    keywords['Np_QHR'] = int(data[12][3])
     keywords['red_law_option'] = data[13][0]
     keywords['q_norm'] = float(data[14][0])
     keywords['flux_unit'] = float(data[14][1])
 
     # (Re)Sampling Parameters
-    keywords['l_ini']      = float(data[17][0])
-    keywords['l_fin']      = float(data[18][0])
-    keywords['dl']         = float(data[19][0])
+    keywords['l_ini'] = float(data[17][0])
+    keywords['l_fin'] = float(data[18][0])
+    keywords['dl'] = float(data[19][0])
     keywords['dl_cushion'] = float(data[19][1])
 
     # Normalization info
-    keywords['l_norm']       = float(data[22][0])
-    keywords['llow_norm']    = float(data[23][0])
-    keywords['lupp_norm']    = float(data[24][0])
-    keywords['fobs_norm']    = float(data[25][0])
-    keywords['Lobs_norm']    = float(data[25][1])
+    keywords['l_norm'] = float(data[22][0])
+    keywords['llow_norm'] = float(data[23][0])
+    keywords['lupp_norm'] = float(data[24][0])
+    keywords['fobs_norm'] = float(data[25][0])
+    keywords['Lobs_norm'] = float(data[25][1])
     keywords['LumDistInMpc'] = float(data[25][2])
 
     # S/N
-    keywords['llow_SN']       = float(data[28][0])
-    keywords['lupp_SN']       = float(data[29][0])
-    keywords['SN_snwin']      = float(data[30][0])
-    keywords['SN_normwin']    = float(data[31][0])
-    keywords['SNerr_snwin']   = float(data[32][0])
+    keywords['llow_SN'] = float(data[28][0])
+    keywords['lupp_SN'] = float(data[29][0])
+    keywords['SN_snwin'] = float(data[30][0])
+    keywords['SN_normwin'] = float(data[31][0])
+    keywords['SNerr_snwin'] = float(data[32][0])
     keywords['SNerr_normwin'] = float(data[33][0])
 
-    # etc...
-    keywords['idum_orig']          = int(data[36][0])
-    keywords['NOl_eff']            = int(data[37][0])
-    keywords['Nl_eff']             = int(data[38][0])
-    keywords['Ntot_clipped']       = int(data[39][0])
-    keywords['clip_method']        = data[39][1]
-    keywords['SNmax_threshold']    = float(data[39][2])
-    keywords['Nglobal_steps']      = int(data[40][0])
-    keywords['N_chains']           = int(data[41][0])
-    keywords['NEX0s_base']         = int(data[42][0])
-    keywords['iCLIPBUG_flag']      = int(data[43][0])
-    keywords['i_RC_CRASH_FLAG']    = int(data[43][1])
+    # Other
+    keywords['idum_orig'] = int(data[36][0])
+    keywords['NOl_eff'] = int(data[37][0])
+    keywords['Nl_eff'] = int(data[38][0])
+    keywords['Ntot_clipped'] = int(data[39][0])
+    keywords['clip_method'] = data[39][1]
+    keywords['SNmax_threshold'] = float(data[39][2])
+    keywords['Nglobal_steps'] = int(data[40][0])
+    keywords['N_chains'] = int(data[41][0])
+    keywords['NEX0s_base'] = int(data[42][0])
+    keywords['iCLIPBUG_flag'] = int(data[43][0])
+    keywords['i_RC_CRASH_FLAG'] = int(data[43][1])
     keywords['IsBurInOver_BurnIn'] = int(data[43][2])
     keywords['n_censored_weights'] = int(data[43][3])
     keywords['wei_nsig_threshold'] = float(data[43][4])
-    keywords['wei_limit']          = float(data[43][5])
-    keywords['idt_all']            = int(data[44][0])
-    keywords['wdt_TotTime']        = float(data[44][1])
-    keywords['wdt_UsrTime']        = float(data[44][2])
-    keywords['wdt_SysTime']        = float(data[44][3])
+    keywords['wei_limit'] = float(data[43][5])
+    keywords['idt_all'] = int(data[44][0])
+    keywords['wdt_TotTime'] = float(data[44][1])
+    keywords['wdt_UsrTime'] = float(data[44][2])
+    keywords['wdt_SysTime'] = float(data[44][3])
 
-    ## Synthesis Results - Best model ##
+    # Synthesis Results
     keywords['chi2/N_eff'] = float(data[49][0])
-    keywords['chi2']       = float(data[49][1])
-    keywords['adev']       = float(data[50][0])
+    keywords['chi2'] = float(data[49][1])
+    keywords['adev'] = float(data[50][0])
 
-    keywords['sum_x']    = float(data[51][0])
-    keywords['Lum_tot']  = float(data[52][0])
+    keywords['sum_x'] = float(data[51][0])
+    keywords['Lum_tot'] = float(data[52][0])
     keywords['Mini_tot'] = float(data[53][0])
     keywords['Mcor_tot'] = float(data[54][0])
 
-    keywords['v0']   = float(data[56][0])
-    keywords['vd']   = float(data[57][0])
-    keywords['AV']   = float(data[58][0])
+    keywords['v0'] = float(data[56][0])
+    keywords['vd'] = float(data[57][0])
+    keywords['AV'] = float(data[58][0])
     keywords['exAV'] = float(data[59][0])
     if len(data[59][-1]) < 7:
         keywords['x(exAV>0)'] = float(data[59][-1][0:-1])
@@ -179,37 +139,33 @@ def read_output_file(filename, read_chains=False):
     keywords['QHR_GlobalChi2ScaleFactor'] = float(data[61][1])
     keywords['PHO_GlobalChi2ScaleFactor'] = float(data[61][2])
     keywords['ETC_GlobalChi2ScaleFactor'] = float(data[61][3])
-    keywords['k_FIR']                     = float(data[62][0])
-    keywords['k_QHR']                     = float(data[62][1])
-    keywords['k_PHO']                     = float(data[62][2])
-    keywords['k_FIR*chi2_FIR/chi2_OPT']   = float(data[63][0])
-    keywords['k_QHR*chi2_QHR/chi2_OPT']   = float(data[63][1])
-    keywords['k_PHO*chi2_PHO/chi2_OPT']   = float(data[63][2])
-    keywords['chi2_FIR']                  = float(data[64][0])
-    keywords['chi2_QHR']                  = float(data[64][1])
-    keywords['chi2_PHO']                  = float(data[64][2])
-    keywords['chi2_ETC']                  = float(data[64][3])
+    keywords['k_FIR'] = float(data[62][0])
+    keywords['k_QHR'] = float(data[62][1])
+    keywords['k_PHO'] = float(data[62][2])
+    keywords['k_FIR*chi2_FIR/chi2_OPT'] = float(data[63][0])
+    keywords['k_QHR*chi2_QHR/chi2_OPT'] = float(data[63][1])
+    keywords['k_PHO*chi2_PHO/chi2_OPT'] = float(data[63][2])
+    keywords['chi2_FIR'] = float(data[64][0])
+    keywords['chi2_QHR'] = float(data[64][1])
+    keywords['chi2_PHO'] = float(data[64][2])
+    keywords['chi2_ETC'] = float(data[64][3])
 
-    # Reset populations lists
-    popx          = []          # column 2
-    popmu_ini     = []          # column 3
-    popmu_cor     = []          # column 4
-    popage_base   = []          # column 5
-    popZ_base     = []          # column 6
-    popfbase_norm = []          # column 7
-    popexAV_flag  = []          # column 8
-    popMstars     = []          # column 9
-    aFe           = []          # column 11
-    SSP_chi2r     = []          # column 12
-    SSP_adev      = []          # column 13
-    SSP_AV        = []          # column 14
-    SSP_x         = []          # column 15
-    popAV_tot     = []          # column 16
-    popLAx        = []          # column 17
+    popx = []
+    popmu_ini = []
+    popmu_cor = []
+    popage_base = []
+    popZ_base = []
+    popfbase_norm = []
+    popexAV_flag = []
+    popMstars = []
+    aFe = []
+    SSP_chi2r = []
+    SSP_adev = []
+    SSP_AV = []
+    SSP_x = []
+    popAV_tot = []
+    popLAx = []
 
-
-    # j     x_j(%)      Mini_j(%)     Mcor_j(%)     age_j(yr)     Z_j      (L/M)_j   exAV?  Mstars   component_j        new/Fe...    |  SSP_chi2r SSP_adev(%)   SSP_AV   SSP_x(%)    |  AV_tot   <LAx>_j(%)
-    # Reads all these things (as lists) from lines _n1 to _n2
     n1 = 67
     n2 = n1 + keywords['N_base']
     for i in range(n1, n2):
@@ -229,41 +185,31 @@ def read_output_file(filename, read_chains=False):
         popAV_tot.append(float(data[i][15]))
         popLAx.append(float(data[i][16]))
 
-
     tables['population'] = Table()
 
-    tables['population']['popx']          = popx
-    tables['population']['popmu_ini']     = popmu_ini
-    tables['population']['popmu_cor']     = popmu_cor
-    tables['population']['popage_base']   = popage_base
-    tables['population']['popZ_base']     = popZ_base
+    tables['population']['popx'] = popx
+    tables['population']['popmu_ini'] = popmu_ini
+    tables['population']['popmu_cor'] = popmu_cor
+    tables['population']['popage_base'] = popage_base
+    tables['population']['popZ_base'] = popZ_base
     tables['population']['popfbase_norm'] = popfbase_norm
-    tables['population']['popexAV_flag']  = popexAV_flag
-    tables['population']['popMstars']     = popMstars
-    tables['population']['aFe']           = aFe
-    tables['population']['p_chi2r']       = SSP_chi2r
-    tables['population']['p_adev']        = SSP_adev
-    tables['population']['p_AV']          = SSP_AV
-    tables['population']['p_x']           = SSP_x
-    tables['population']['popAV_tot']     = popAV_tot
+    tables['population']['popexAV_flag'] = popexAV_flag
+    tables['population']['popMstars'] = popMstars
+    tables['population']['aFe'] = aFe
+    tables['population']['p_chi2r'] = SSP_chi2r
+    tables['population']['p_adev'] = SSP_adev
+    tables['population']['p_AV'] = SSP_AV
+    tables['population']['p_x'] = SSP_x
+    tables['population']['popAV_tot'] = popAV_tot
 
-    #Column 10 may be the upper age bin for composite stellar populations, if so. this value is stored:
+    # Column 10 might be the upper age bin for composite stellar populations, if so. this value is stored:
     try:
         tables['population']['popage_base_upp'] = [float(data[i][9]) for i in range(n1, n2)]
     except Exception:
         pass
 
     if read_chains == True:
-        #--------------------------------------------------------------------
-        # Read chain-related info (in arrays!)
-        # ATT: The average solution is counted as an extra chain entry - the 1st one (Chain_*[0])!
-        #--------------------------------------------------------------------
-        ## Synthesis Results - Average & Chains ##
 
-        # j    par_j: min, <> & last-chain-values for 0 ... N_chains chains (ave is 0'th chain!)
-        # Reading chain par-vector (light fractions at l_norm, + extinctions and etc)
-        # Notice that Chain_Par contains AV (maybe more than 1!) and fn, as well
-        # as x!
         N_par = keywords['N_base'] + 1 + keywords['N_exAV'] + 1
         n1 = 67 + keywords['N_base'] + 6 - 1
         n2 = n1 + N_par - 1 + 1
@@ -276,8 +222,6 @@ def read_output_file(filename, read_chains=False):
             x_ = [np.float(x) for x in data[i][3:3 + keywords['N_chains']]]
             Chain_Par.append(x_)
 
-        # j Lambda-Averaged pop-vectors <LAx_*>_j: min, <> & last-chain-values for 0 ... N_chains chains (ave is 0'th chain!)
-        # Reading chain LAx pop-vectors
         n1 = 67 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + 2
         n2 = n1 + keywords['N_base']
         Best_LAx = []
@@ -289,8 +233,6 @@ def read_output_file(filename, read_chains=False):
             x_ = [np.float(x) for x in data[i][3:3 + keywords['N_chains']]]
             Chain_LAx.append(x_)
 
-        # j   Mcor_j: min, <> & last-chain-values for 0 ... N_chains chains (ave is 0'th chain!)
-        # Reading chain mu_cor pop-vectors
         n1 = 67 + keywords['N_base'] + 6 - 1 + \
             N_par - 1 + 1 + 2 + keywords['N_base'] + 2
         n2 = n1 + keywords['N_base']
@@ -303,8 +245,6 @@ def read_output_file(filename, read_chains=False):
             x_ = [np.float(x) for x in data[i][3:3 + keywords['N_chains']]]
             Chain_mu_cor.append(x_)
 
-        # chi2/Nl_eff & Mass for min, <> & i_chain = 0 ...  N_chains chains (ave is 0'th chain!)
-        # Read Chain chi2/Nl_eff's , as well as kinematics before_EX0s
         i = 67 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + \
             2 + keywords['N_base'] + 2 + keywords['N_base'] + 2
         keywords['best_chi2'] = np.float(data[i][1])
@@ -320,8 +260,6 @@ def read_output_file(filename, read_chains=False):
         keywords['v_0_before_EX0s'] = float(data[i + 2][0])
         keywords['v_d_before_EX0s'] = float(data[i + 3][0])
 
-
-        # Store chains in tables.
         cols = [Best_Par, Ave_Par, Chain_Par]
         chains_names = ['best', 'average', 'chains']
         tables['chains_par'] = Table(cols, names=chains_names)
@@ -331,12 +269,10 @@ def read_output_file(filename, read_chains=False):
 
         cols = [Best_mu_cor, Ave_mu_cor, Chain_mu_cor]
         tables['chains_mu_cor'] = Table(cols, names=chains_names)
-        #--------------------------------------------------------------------
 
     N_par = keywords['N_base'] + 1 + keywords['N_exAV'] + 1
 
-    # Synthetic spectrum (Best Model) ##l_obs f_obs f_syn wei Best_f_SSP
-
+    # Synthetic spectrum (Best Model)
     i = 67 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + \
         2 + keywords['N_base'] + 2 + keywords['N_base'] + 2 + 8
     keywords['Nl_obs'] = int(data[i][0])
@@ -344,10 +280,10 @@ def read_output_file(filename, read_chains=False):
     keywords['i_SaveBestSingleCompFit'] = int(data[i][2])
 
     # Reset & read spectral arrays (later turned into numpy.arrays)
-    l_obs      = []
-    f_obs      = []
-    f_syn      = []
-    f_wei      = []
+    l_obs = []
+    f_obs = []
+    f_syn = []
+    f_wei = []
     Best_f_SSP = []
 
     # Read spectra. Notice that new 5th column (with Best_f_SSP) is only read
@@ -370,20 +306,16 @@ def read_output_file(filename, read_chains=False):
 
     tables['spectra'] = Table(cols, names=names)
 
-    #--------------------------------------------------------------------
-    # Reading FIR-related output
-    #--------------------------------------------------------------------
+    # FIR-related output
     if (keywords['IsFIRcOn'] != 0):
         N_par = keywords['N_base'] + 1 + keywords['N_exAV'] + 1
 
-        # Skip spectra
         i = 67 + keywords['N_base'] + 6 - 1 + N_par - 1 + 1 + 2 + \
             keywords['N_base'] + 2 + keywords['N_base'] + 2 + 8
         keywords['Nl_obs'] = int(data[i][0])
         n1 = i + 1
         n2 = n1 + keywords['Nl_obs']
         n3 = n2 + 8
-
 
         keywords['FIR_arq_ETCinfo'] = data[n3][0]
         n3 += 1
@@ -421,15 +353,15 @@ def read_output_file(filename, read_chains=False):
         n3 += 3
 
         # Reset & read FIR-related SSP arrays
-        x_FIR    = []
-        x_BOL    = []
-        BolCor   = []
+        x_FIR = []
+        x_BOL = []
+        BolCor = []
         FracLion = []
-        Lbol_M   = []
-        Rmat     = []
-        R_opt    = []
-        R_Lya    = []
-        R_LCE    = []
+        Lbol_M = []
+        Rmat = []
+        R_opt = []
+        R_Lya = []
+        R_LCE = []
 
         # Read FIR-related SSP arrays
         n1 = n3
@@ -445,7 +377,6 @@ def read_output_file(filename, read_chains=False):
             R_Lya.append(float(data[i][13]))
             R_LCE.append(float(data[i][14]))
 
-
         tables['FIR'] = Table()
 
         tables['FIR']['x_FIR']    = x_FIR
@@ -458,10 +389,7 @@ def read_output_file(filename, read_chains=False):
         tables['FIR']['R_Lya']    = R_Lya
         tables['FIR']['R_LCE']    = R_LCE
 
-
-    #--------------------------------------------------------------------
     # Reading QHR-related output
-    #--------------------------------------------------------------------
     if (keywords['IsQHRcOn'] != 0):
         N_par = keywords['N_base'] + 1 + keywords['N_exAV'] + 1
 
@@ -519,18 +447,16 @@ def read_output_file(filename, read_chains=False):
 
         tables['QHR'] = Table()
 
-        tables['QHR']['lambda']          = QHR_lambda
-        tables['QHR']['frecomb']         = QHR_frecomb
-        tables['QHR']['logY_tot']        = QHR_logY_TOT
-        tables['QHR']['YFrac2Model']     = QHR_YFrac2Model
-        tables['QHR']['ErrlogY']         = QHR_ErrlogY
-        tables['QHR']['RangelogY']       = QHR_RangelogY
+        tables['QHR']['lambda'] = QHR_lambda
+        tables['QHR']['frecomb'] = QHR_frecomb
+        tables['QHR']['logY_tot'] = QHR_logY_TOT
+        tables['QHR']['YFrac2Model'] = QHR_YFrac2Model
+        tables['QHR']['ErrlogY'] = QHR_ErrlogY
+        tables['QHR']['RangelogY'] = QHR_RangelogY
         tables['QHR']['Chi2ScaleFactor'] = QHR_Chi2ScaleFactor
-        tables['QHR']['logY_obs']        = QHR_logY_obs
-        tables['QHR']['logY_low']        = QHR_logY_low
-        tables['QHR']['logY_upp']        = QHR_logY_upp
-
-
+        tables['QHR']['logY_obs'] = QHR_logY_obs
+        tables['QHR']['logY_low'] = QHR_logY_low
+        tables['QHR']['logY_upp'] = QHR_logY_upp
 
         # Read Emission Line Ratio-related things
         n3 = n2 + 2
@@ -546,7 +472,6 @@ def read_output_file(filename, read_chains=False):
         keywords['AV_neb'] = float(data[n3][6])
         tables['ELR']['errAV_neb'] = float(data[n3][7])
         n3 += 1
-
 
         tables['ELR']['Err_logR'] = float(data[n3][0])
         tables['ELR']['RangelogR'] = float(data[n3][1])
@@ -616,12 +541,10 @@ def read_output_file(filename, read_chains=False):
             names.append('Y_Perc_Line' + str(il))
         tables['popQHR'] = Table(cols, names=names)
 
-    #--------------------------------------------------------------------
     # Reading PHO-related output
-    #--------------------------------------------------------------------
     if (keywords['IsPHOcOn'] != 0):
 
-        #Creating PHO table
+        # Creating PHO table
         tables['PHO'] = Table()
 
         N_par = keywords['N_base'] + 1 + keywords['N_exAV'] + 1
@@ -654,10 +577,7 @@ def read_output_file(filename, read_chains=False):
         n3 += 1
         keywords['NPHO_Ys'] = int(data[n3][0])
         n3 += 1
-
         n3 += 2
-
-        # Reset & read PHO observed
         PHO_name = []
         PHO_magY_TOT = []
         PHO_YFrac2Model = []
@@ -668,7 +588,6 @@ def read_output_file(filename, read_chains=False):
         PHO_magY_low = []
         PHO_magY_upp = []
 
-        # Read PHO observed
         n1 = n3
         n2 = n1 + keywords['NPHO_Ys']
         for i in range(n1, n2):
@@ -682,17 +601,15 @@ def read_output_file(filename, read_chains=False):
             PHO_magY_low.append(float(data[i][8]))
             PHO_magY_upp.append(float(data[i][9]))
 
-
-        tables['PHO']['filter']           = PHO_name
-        tables['PHO']['magY_TOT']         = PHO_magY_TOT
-        tables['PHO']['Yfrac2model']      = PHO_YFrac2Model
-        tables['PHO']['magYErr']          = PHO_magYErr
-        tables['PHO']['magYRange']        = PHO_magYRange
-        tables['PHO']['Chi2ScaleFactor']  = PHO_Chi2ScaleFactor
-        tables['PHO']['magY_obs']         = PHO_magY_obs
-        tables['PHO']['magY_low']         = PHO_magY_low
-        tables['PHO']['magY_upp']         = PHO_magY_upp
-
+        tables['PHO']['filter'] = PHO_name
+        tables['PHO']['magY_TOT'] = PHO_magY_TOT
+        tables['PHO']['Yfrac2model'] = PHO_YFrac2Model
+        tables['PHO']['magYErr'] = PHO_magYErr
+        tables['PHO']['magYRange'] = PHO_magYRange
+        tables['PHO']['Chi2ScaleFactor'] = PHO_Chi2ScaleFactor
+        tables['PHO']['magY_obs'] = PHO_magY_obs
+        tables['PHO']['magY_low'] = PHO_magY_low
+        tables['PHO']['magY_upp'] = PHO_magY_upp
 
         n3 = n2 + 2
 
@@ -702,17 +619,15 @@ def read_output_file(filename, read_chains=False):
 
         n3 += 2
 
-#  name/code   MeanLamb PivotLamb StdDevLamb    q_MeanLamb  magY_obs     magY_mod     fY_obs        fY_mod       chi2_Y        chi2_Y/chi2_OPT  chi2_Y/chi2_TOT
-        # Reset & read PHO model
-        PHO_MeanLamb      = []
-        PHO_PivotLamb     = []
-        PHO_StdDevLamb    = []
-        PHO_q_MeanLamb    = []
-        PHO_magY_obs      = []
-        PHO_magY_mod      = []
-        PHO_fY_obs        = []
-        PHO_fY_mod        = []
-        PHO_chi2_Y        = []
+        PHO_MeanLamb = []
+        PHO_PivotLamb = []
+        PHO_StdDevLamb = []
+        PHO_q_MeanLamb = []
+        PHO_magY_obs = []
+        PHO_magY_mod = []
+        PHO_fY_obs = []
+        PHO_fY_mod = []
+        PHO_chi2_Y = []
 
         # Read PHO model
         n1 = n3
@@ -729,7 +644,6 @@ def read_output_file(filename, read_chains=False):
             PHO_fY_mod.append(float(data[i][9]))
             PHO_chi2_Y.append(float(data[i][10]))
 
-
         tables['PHO']['MeanLamb']   = PHO_MeanLamb
         tables['PHO']['PivotLamb']  = PHO_PivotLamb
         tables['PHO']['StdDevLamb'] = PHO_StdDevLamb
@@ -739,7 +653,6 @@ def read_output_file(filename, read_chains=False):
         tables['PHO']['fY_obs']     = PHO_fY_obs
         tables['PHO']['fY_mod']     = PHO_fY_mod
         tables['PHO']['chi2_Y']     = PHO_chi2_Y
-
 
         n3 = n2 + 2
 
@@ -759,7 +672,6 @@ def read_output_file(filename, read_chains=False):
             tables['PHO']['Y_Perc'][i] = Y_Perc[:,i]
 
     return tables
-
 
 
 def is_output_OK(out_file):

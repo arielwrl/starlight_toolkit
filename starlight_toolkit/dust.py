@@ -1,34 +1,27 @@
-'''
-Created on 08/24/2016
-
-@author: ariel
-
-Provides extinction and attenuation laws
-'''
-
 import numpy as np
-
 
 
 def calc_extinction(wl, EBV, Rv=3.1):
     """
-    Calculates galactic extinction at a given wavelength
+    Calculates Galactic extinction at a given wavelength.
 
-    Parameters
-    ----------
+    Parameters:
+        wl (float or array-like): Wavelength(s) in Angstroms.
+        EBV (float): Color excess or the ratio of total to selective extinction (E(B-V)).
+        Rv (float, optional): Ratio of total to selective extinction. Default is 3.1.
 
-    wl: array like
-        Wavelengths in angstroms
-    Rv (optional): float
-        Ratio of total to selective extinction, default is the average MW value of 3.1
+    Returns:
+        float or array-like: Extinction at the specified wavelength(s).
 
-    Returns
-    ----------
-    A_lambda: array
-        Galactic extinction at wl
+    Notes:
+        This function will not work if the input is a list.
 
+    Reference:
+        Cardelli, J. A., Clayton, G. C., & Mathis, J. S. (1989). 
+        The relationship between infrared, optical, and ultraviolet extinction. 
+        The Astrophysical Journal, 345, 245–256.
     """
-
+ 
     AV = Rv * EBV
     A_lambda = AV * CCM(wl)
 
@@ -36,63 +29,49 @@ def calc_extinction(wl, EBV, Rv=3.1):
 
 
 def extinction_corr(flux, wl, EBV):
-    '''
+    """
+    Corrects spectra for the effects of Galactic extinction.
 
-    Corrects spectra for the effects of galactic extinction.
+    Parameters:
+        flux (array-like): The flux values of the spectra.
+        wl (array-like): The wavelengths corresponding to the flux values.
+        EBV (float): Ratio of total to selective extinction (E(B-V)).
 
-    Input: Wavelenghts, Fluxes, RA, Dec
-    Returns: Fluxes corrected for the effects of Milky Way dust.
+    Returns:
+        array-like: Fluxes corrected for the effects of Milky Way dust.
 
-    '''
-
-    #Get the extinction in each wavelenght:
+    Notes:
+        This function corrects input spectra for the effects of Galactic extinction due to interstellar dust.
+        
+    References:
+        Cardelli, J. A., Clayton, G. C., & Mathis, J. S. (1989). 
+        The relationship between infrared, optical, and ultraviolet extinction. 
+        The Astrophysical Journal, 345, 245–256.
+    """
+ 
     A_lambdas = calc_extinction(wl, EBV)
 
-    #Calculate corrected spectra:
     corr_spectra = flux * 10 ** (0.4 * A_lambdas)
 
     return corr_spectra
 
 
-def extinction_decorr(wl, flux, EBV):
-    '''
-
-    Input: Wavelenghts, Fluxes, RA, Dec
-    Returns: Reddened fluxes.
-
-    '''
-
-    #Get the extinction in each wavelenght:
-    A_lambda = calc_extinction(wl, EBV)
-
-    #Calculate corrected spectra:
-    corr_spectra = flux * 10 ** (-0.4 * A_lambda)
-
-    return corr_spectra
-
-
 def CCM(wl, R_V=3.1):
-    """
+   """
     Calculates the Cardelli, Clayton & Mathis (CCM) extinction curve.
 
-    Parameters
-    ----------
-    wl : array like
-        Wavelength in Angstroms.
+    Parameters:
+        wl (array-like): Wavelength in Angstroms.
+        R_V (float, optional): Ratio of total to selective extinction. Default is 3.1.
 
-    R_V : float, optional
-        Ratio of total to selective extinction.
+    Returns:
+        array-like: Extinction A_lambda / A_V. Array of the same length as wl.
 
-    Returns
-    -------
-    q : array
-        Extinction A_lambda / A_V. Array of same length as wl.
-
-
-    Reference: http://adsabs.harvard.edu/abs/1989ApJ...345..245C
-
+    References:
+        Cardelli, J. A., Clayton, G. C., & Mathis, J. S. (1989).
+        The relationship between infrared, optical, and ultraviolet extinction.
+        The Astrophysical Journal, 345, 245–256.
     """
-
 
     a = np.zeros(np.shape(wl))
     b = np.zeros(np.shape(wl))
@@ -129,7 +108,6 @@ def CCM(wl, R_V=3.1):
     b[i] = 1.41338 * y[i] + 2.28305 * y[i]**2 + 1.07233 * y[i]**3 - \
         5.38434 * y[i]**4 - 0.62251 * y[i]**5 + 5.30260 * y[i]**6 - 2.09002 * y[i]**7
 
-
     # Infrared: 0.3 <= x <= 1.1 ; 9091 -> 33333 Angs ;
     i = np.bitwise_and(x >= 0.3, x < 1.1)
 
@@ -143,23 +121,31 @@ def CCM(wl, R_V=3.1):
 
 def CAL(wl, R_V=4.05):
     """
-    Calculates the attenuation curve by Calzetti et al. (1994).
+    Calculates the extinction curve according to the Calzetti law.
 
-    Parameters
-    ----------
-    wl : array like
-        Wavelength in Angstroms.
+    Parameters:
+        wl (array-like): Wavelength in Angstroms.
+        R_V (float, optional): Ratio of total to selective extinction. Default is 4.05.
 
-    R_V : float, optional
-        Ratio of total to selective attenuation.
+    Returns:
+        array-like: Extinction A_lambda / A_V. Array of the same length as wl.
 
-    Returns
-    -------
-    q : array
-        Attenuation A_lambda / A_V. Array of same length as wl.
+    Notes:
+        This function computes the extinction curve described by the Calzetti law.
+        
+        Wavelength ranges:
+        - UV to Optical: 1200 -> 6300 Angstroms
+        - Red to Infrared: 6300 -> 25000 Angstroms
 
+        This function issues a warning if the wavelength falls outside the valid range (1200 to 25000 Angstroms).
+ 
+    References:
+        Calzetti, D., Armus, L., Bohlin, R. C., et al. (2000). 
+        The Dust Content and Opacity of Actively Star-forming Galaxies. 
+        The Astrophysical Journal, 533(2), 682–695.
+ 
     """
-
+ 
     if not isinstance(wl, np.ma.MaskedArray):
         wl = np.asarray(wl, 'float64')
 
@@ -176,13 +162,31 @@ def CAL(wl, R_V=4.05):
 
     # Issue a warning if lambda falls outside 1200->22000 Angs range
     if ((wl < 1200.) | (wl > 25000.)).any():
-        print('[Calzetti_RedLaw] WARNING! some lambda outside valid range (1200, 22000.)')
+        print('WARNING! some lambda outside valid range (1200, 22000.)')
     return q
 
 
 
 def CSB(wl, R_V=3.1, B=0.5):
+    """
+    Calculates the extinction curve according to the Conroy, Schiminovich, and Blanton (CSB) law.
 
+    Parameters:
+        wl (array-like): Wavelength in Angstroms.
+        R_V (float, optional): Ratio of total to selective extinction. Default is 3.1.
+        B (float, optional): Parameter controlling the strength of the 2175 Å bump. Default is 0.5.
+
+    Returns:
+        array-like: Extinction A_lambda / A_V. Array of the same length as wl.
+
+    Notes: 
+        This function adds a bump to the Calzetti curve.
+
+    References:
+        Conroy, Charlie ; Schiminovich, David ; Blanton, Michael R. (2010).
+        Dust Attenuation in Disk-dominated Galaxies: Evidence for the 2175 Å Dust Feature
+        The Astrophysical Journal, 718(1), 184–202.
+    """
     a   = np.zeros(np.shape(wl))
     b   = np.zeros(np.shape(wl))
     F_a = np.zeros(np.shape(wl))
@@ -201,7 +205,6 @@ def CSB(wl, R_V=3.1, B=0.5):
     b[i] = 13.670 + 4.257 * (x[i] - 8.) - 0.420 * (x[i] - 8.)**2 + 0.374 * (x[i] - 8.)**3
 
     # Ultraviolet: 3.3 <= x <= 8
-
     i = np.bitwise_and(x >= 5.9, x < 8)
 
     F_a[i] = -0.0447*(x[i]-5.9)**2 - 0.00978*(x[i]-5.9)**3
@@ -210,15 +213,12 @@ def CSB(wl, R_V=3.1, B=0.5):
     a[i] = F_a[i] + 1.752 - 0.316*x[i] -  0.104*B / ( (x[i]-4.67)**2 +0.341)
     b[i] = F_b[i] - 3.09 + 1.825*x[i] + 1.206*B / ( (x[i]-4.62)**2 +0.263)
 
-
     i = np.bitwise_and(x >= 3.3, x <= 5.9)
 
     F_a[i] = (3.3/x[i])**6 * (-0.0370 + 0.0469*B - 0.601*(B/R_V) + 0.542/R_V)
 
     a[i] = F_a[i] + 1.752 - 0.316*x[i] -  0.104*B / ( (x[i]-4.67)**2 +0.341)
     b[i] = -3.09 + 1.825*x[i] + 1.206*B / ( (x[i]-4.62)**2 +0.263)
-
-
 
     # Optical/NIR: 1.1 <= x <= 3.3 ; 3030 -> 9091 Angs ;
     i = np.bitwise_and(x >= 1.1, x < 3.3)
@@ -227,7 +227,6 @@ def CSB(wl, R_V=3.1, B=0.5):
         0.721 * y[i]**4 + 0.0198 * y[i]**5 - 0.775 * y[i]**6 + 0.330 * y[i]**7
     b[i] = 1.413 * y[i] + 2.283 * y[i]**2 + 1.072 * y[i]**3 - \
         5.384 * y[i]**4 - 0.622 * y[i]**5 + 5.303 * y[i]**6 - 2.090 * y[i]**7
-
 
     # Infrared: 0.3 <= x <= 1.1 ; 9091 -> 33333 Angs ;
     i = np.bitwise_and(x >= 0.3, x < 1.1)
@@ -241,6 +240,17 @@ def CSB(wl, R_V=3.1, B=0.5):
 
 
 def CCC(wl, R_V=4.05):
+    """
+    Modified Calzetti curve for far UV wavelengths.
+
+    Parameters:
+        wl (array-like): Wavelength in Angstroms.
+        R_V (float, optional): Ratio of total to selective extinction. Default is 4.05.
+
+    Returns:
+        array-like: Extinction A_lambda / A_V. Array of the same length as wl.
+
+    """
 
     q = np.zeros(np.shape(wl))
     x = 10000. / wl
@@ -255,11 +265,26 @@ def CCC(wl, R_V=4.05):
 
 
 def Salim2018(wl, delta=0, B=0, gamma=350., wl_bump=2175.):
-    '''
-    Generates the modified Calzetti law from Salim et al. (2018), which
-    is itself a modification of the Noll et al. (2009) and Kriek & Conroy (2011)
-    parameterizations.
-    '''
+    """
+    Generates the modified Calzetti law from Salim et al. (2018).
+
+    This modified law is based on parameterizations from Noll et al. (2009) and Kriek & Conroy (2011).
+
+    Parameters:
+        wl (array-like): Wavelength in Angstroms.
+        delta (float, optional): Power-law index parameter. Default is 0.
+        B (float, optional): Amplitude of the Drude profile. Default is 0.
+        gamma (float, optional): Width of the Drude profile. Default is 350.
+        wl_bump (float, optional): Central wavelength of the 2175 Å bump. Default is 2175.
+
+    Returns:
+        array-like: Extinction A_lambda / A_V. Array of the same length as wl.
+
+    References:
+        Salim, S., et al. (2018).
+        Dust attenuation curves in the local universe: demographics and new laws for star-forming galaxies and high-redshift analyses.
+        The Astrophysical Journal, 859(1), 11.
+    """
 
     q = np.zeros(np.shape(wl))
 

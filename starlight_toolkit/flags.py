@@ -1,9 +1,3 @@
-'''
-Created on 22/06/2015
-
-@author: andre
-'''
-
 _unused = 0x0001
 no_data = 0x0002
 bad_pix = 0x0004

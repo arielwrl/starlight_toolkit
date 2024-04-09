@@ -1,22 +1,21 @@
-"""
-
-ariel@ufsc
-May 2017
-
-Provides tools for synthetic photometry, may be useful on 
-Starlight fits including photometry
-
-"""
-
-
 import numpy as np
 from scipy.interpolate import interp1d
 
 
 def resampler(x_old, y_old, x_new):
+    """
+    Resamples data onto a new grid using linear interpolation.
 
-    interp = interp1d(x_old, y_old, bounds_error = False
-    , fill_value = (0.,0.))
+    Parameters:
+        x_old (ndarray): Old x-values.
+        y_old (ndarray): Old y-values.
+        x_new (ndarray): New x-values.
+
+    Returns:
+        ndarray: Resampled y-values.
+    """
+
+    interp = interp1d(x_old, y_old, bounds_error = False, fill_value = (0.,0.))
 
     y_new = interp(x_new)
     
@@ -24,20 +23,28 @@ def resampler(x_old, y_old, x_new):
     
 
 def synflux(wl, flux, filter_curve):
-    
-    # Reading filter if needed:
+    """
+    Calculates the synthetic flux within a filter curve.
+
+    Parameters:
+        wl (array_like): Wavelength array of the spectrum.
+        flux (array_like): Flux array of the spectrum.
+        filter_curve (str or array-like): Filename of the filter curve or array of wavelength and transmission arrays.
+
+    Returns:
+        float: Synthetic flux within the filter curve.
+    """
+
     if type(filter_curve) is str: 
         wl_filter, T = np.genfromtxt(filter_curve).transpose()
     else:
         wl_filter, T = filter_curve[0], filter_curve[1]
     
-    # Resampling filter and spectrum to 1\AA intervals:
     wl_new = np.arange(np.round(wl_filter[0])-5, np.round(wl_filter[-1])+5)
     
     T = resampler(wl_filter, T, wl_new)
     flux = resampler(wl, flux, wl_new)
     
-    # Convolution:
     synflux = np.trapz(flux * T * wl_new, dx=1)
     synflux /= np.trapz(wl_new * T, dx=1)
 
@@ -45,14 +52,32 @@ def synflux(wl, flux, filter_curve):
 
 
 def synmag(wl, flux, filter_curve, error=None, flag=None, badpix_tolerance=0.25, interpolate_bad_pixels=False):
+    """
+    Calculates the synthetic magnitude within a filter curve.
 
-    # Reading filter if needed:
+    Parameters:
+        wl (array_like): Wavelength array of the spectrum.
+        flux (array_like): Flux array of the spectrum.
+        filter_curve (str or array-like): Filename of the filter curve or array of wavelength and transmission arrays.
+        error (array_like, optional): Error array of the spectrum. Default is None.
+        flag (array_like, optional): Flag array indicating bad pixels. Default is None.
+        badpix_tolerance (float, optional): Tolerance for considering bad pixels as a fraction of the filter range. Default is 0.25.
+        interpolate_bad_pixels (bool, optional): Whether to interpolate bad pixels. Default is False.
+
+    Returns:
+        tuple or float: Synthetic magnitude if error is None. Tuple (magnitude, magnitude_error) if error is provided.
+                        If flag is provided, returns a tuple with the third element indicating whether bad pixels were detected.
+
+    Notes:
+        - If `flag` is provided, the function checks for bad pixels within the filter range based on `badpix_tolerance`.
+        - If `interpolate_bad_pixels` is True, bad pixels are excluded by interpolation before magnitude calculation.   
+    """
+
     if type(filter_curve) is str: 
         wl_filter, T = np.genfromtxt(filter_curve).transpose()
     else:
         wl_filter, T = filter_curve[0], filter_curve[1]
 
-    # Checking bad pixels:
     if flag is not None:
         filter_range = (wl > wl_filter[0]) & (wl < wl_filter[-1])
         if flag[filter_range].sum() > badpix_tolerance * len(flag[filter_range]):
@@ -60,22 +85,19 @@ def synmag(wl, flux, filter_curve, error=None, flag=None, badpix_tolerance=0.25,
         else:
             badpix = False
 
-    # Resampling filter and spectrum to 1 Angstrom intervals:
     wl_new = np.arange(np.round(wl_filter[0]) - 5, np.round(wl_filter[-1]) + 5)
 
-    # Projecting fluxes in the filter region, excluding or including bad pixels:
     if interpolate_bad_pixels is True:
         T = resampler(wl_filter, T, wl_new)
-        flux = resampler(wl[~flag], flux[~flag], wl_new) # Excluding bad pixels
+        flux = resampler(wl[~flag], flux[~flag], wl_new) 
         if error is not None:
-            error = resampler(wl[~flag], error[~flag], wl_new) # Excluding bad pixels
+            error = resampler(wl[~flag], error[~flag], wl_new) 
     else: 
         T = resampler(wl_filter, T, wl_new)
-        flux = resampler(wl, flux, wl_new) # Including bad pixels
+        flux = resampler(wl, flux, wl_new) 
         if error is not None:
-            error = resampler(wl, error, wl_new) # Including bad pixels
+            error = resampler(wl, error, wl_new) 
 
-    # Calculate magnitudes and errors:
     m_ab = -2.5 * np.log10(np.trapz(flux * T * wl_new, dx=1) / np.trapz(T / wl_new, dx=1)) - 2.41
 
     if error is not None:
@@ -89,14 +111,21 @@ def synmag(wl, flux, filter_curve, error=None, flag=None, badpix_tolerance=0.25,
 
 
 def pivot_wavelength(filter_curve):
+    """
+    Calculates the pivot wavelength of a filter curve.
 
-    # Reading filter if needed:
+    Parameters:
+    filter_curve (str or array-like): Filename of the filter curve or array of wavelength and transmission arrays.
+
+    Returns:
+    float: Pivot wavelength of the filter curve.
+    """
+ 
     if type(filter_curve) is str: 
         wl_filter, T = np.genfromtxt(filter_curve).transpose()
     else:
         wl_filter, T = filter_curve[0], filter_curve[1]
     
-    # Calculating pivot_wavelength    
     pivot_wl = np.trapz(T * wl_filter, dx=1) / np.trapz(T * (wl_filter**-1), dx=1)
     pivot_wl = np.sqrt(pivot_wl)
     
@@ -104,26 +133,30 @@ def pivot_wavelength(filter_curve):
 
 
 def effective_wavelength(wl, spectrum, filter_curve):
-    '''
+    """
+    Calculates the effective wavelength defined as the mean wavelength of a filter weighted by transmission of the filter
+    and spectrum of the source.
 
-    This is defined as the mean wavelength of the filter weighted by transmission of the filter
-    and spectrum of the source
+    Parameters:
+        wl (array): Wavelength array of the spectrum.
+        spectrum (array): Flux array of the spectrum.
+        filter_curve (str or tuple): Filename of the filter curve or tuple of wavelength and transmission arrays.
 
-    '''
+    Returns:
+        float: Effective wavelength of the spectrum.
+
+    """
     
-    # Reading filter if needed:
     if type(filter_curve) is str: 
         wl_filter, T = np.genfromtxt(filter_file).transpose()
     else:
         wl_filter, T = filter_curve[0], filter_curve[1]
     
-    # Resampling filter and spectrum to 1\AA intervals:
     wl_filter_new = np.arange(np.round(wl_filter[0])-5, np.round(wl_filter[-1])+5,1)
     
     T_filter_new = resampler(wl_filter, T_filter, wl_filter_new)
     spectrum_new = resampler(wl, spectrum, wl_filter_new)
     
-    # Convolution time:
     effective_wl = np.trapz(wl_filter_new**2 * spectrum_new * T_filter_new, dx=1)
     effective_wl /= np.trapz(spectrum_new * T_filter_new * wl_filter_new, dx=1)
     
