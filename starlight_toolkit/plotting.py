@@ -9,8 +9,8 @@ rc('text', usetex=True)
 
 
 def plot_spec(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True, plot_labels=True, 
-              obs_color='k', syn_color='b', syn_lw=0.6, obs_lw=0.5, w0_color='y', clip_color='m', 
-              flag_color='g', syn_label=r'$M_\lambda$', plot_PHO=True, PHO_color='cyan', 
+              label_fontsize=12, obs_color='k', syn_color='b', syn_lw=0.6, obs_lw=0.5, w0_color='y', 
+              clip_color='m', flag_color='g', syn_label=r'$M_\lambda$', plot_PHO=True, PHO_color='cyan', 
               PHO_label=r'$M_l$', PHO_obs_label=r'$O_l$', wl_range=None, show_legend=False):
     """
     Plots the spectra and photometric information.
@@ -23,6 +23,7 @@ def plot_spec(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True, plot_
         plot_syn (bool, optional): Whether to plot the synthetic spectrum. Defaults to True.
         plot_error (bool, optional): Whether to plot the error spectrum. Defaults to True.
         plot_labels (bool, optional): Whether to plot axis labels. Defaults to True.
+        label_fontsize (int, optional): Fontsize for axis labels. Defaults to 12.
         obs_color (str, optional): Color of the observed spectrum. Defaults to 'k'.
         syn_color (str, optional): Color of the synthetic spectrum. Defaults to 'b'.
         syn_lw (float, optional): Line width of the synthetic spectrum. Defaults to 0.6.
@@ -82,8 +83,8 @@ def plot_spec(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True, plot_
         ax.plot(l_obs, error, '--r', label=r'$\epsilon_\lambda$', lw=0.5)
 
     if plot_labels is True:
-        ax.set_ylabel(r'$F_\lambda/F_{\lambda%i}$' % out['keywords']['l_norm'], fontsize=11)
-        ax.set_xlabel(r'$\lambda\mathrm{[\AA]}$', fontsize=11)
+        ax.set_ylabel(r'$F_\lambda/F_{\lambda%i}$' % out['keywords']['l_norm'], fontsize=label_fontsize)
+        ax.set_xlabel(r'$\lambda\mathrm{[\AA]}$', fontsize=label_fontsize)
     
     if plot_syn is True:
         ax.plot(l_obs, f_syn, color=syn_color, lw=syn_lw, label=syn_label, zorder=5)
@@ -110,9 +111,9 @@ def plot_spec(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True, plot_
             ax.errorbar(wl_pho, flux_obs, flux_err, fmt='ok', ecolor='k', markersize=4,
                         label=PHO_obs_label)
 
-        # Plotting modeled photometry:
-        ax.plot(wl_pho, flux_mod, 'o', color=PHO_color, markersize=4
-                , label=PHO_label, zorder=15)
+            # Plotting modeled photometry:
+            ax.plot(wl_pho, flux_mod, 'o', color=PHO_color, markersize=4
+                    , label=PHO_label, zorder=15)
 
     ax.set_ylim(0, 1.5 * np.max(f_syn))
 
@@ -124,12 +125,15 @@ def plot_spec(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True, plot_
     if show_legend:
         ax.legend()
 
+    return ax
+
 
 def plot_spec_simple(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True,
-                     plot_labels=True, obs_color='k', syn_color='b', syn_lw=0.6, obs_lw=0.5, w0_color='y',
-                     clip_color='m', syn_label=r'$M_\lambda$',
+                     plot_labels=True, label_fontsize=12, obs_color='k', syn_color='b', 
+                     syn_lw=0.6, obs_lw=0.5, w0_color='y',syn_label=r'$M_\lambda$',
                      plot_PHO=True, PHO_color='cyan', PHO_edgecolor=None,
-                     PHO_label=r'$M_l$', PHO_obs_label=r'$O_l$', PHO_markersize=5):
+                     PHO_label=r'$M_l$', PHO_obs_label=r'$O_l$', PHO_markersize=5, 
+                     wl_range=None, show_legend=False):
     """
     Simplified plots for Starlight output.
 
@@ -141,6 +145,7 @@ def plot_spec_simple(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True
         plot_syn (bool, optional): Whether to plot the synthetic spectrum. Defaults to True.
         plot_error (bool, optional): Whether to plot the error spectrum. Defaults to True.
         plot_labels (bool, optional): Whether to plot axis labels. Defaults to True.
+        label_fontsize (int, optional): Fontsize for axis labels. Defaults to 12.
         obs_color (str, optional): Color of the observed spectrum. Defaults to 'k'.
         syn_color (str, optional): Color of the synthetic spectrum. Defaults to 'b'.
         syn_lw (float, optional): Line width of the synthetic spectrum. Defaults to 0.6.
@@ -191,8 +196,8 @@ def plot_spec_simple(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True
         ax.plot(l_obs, error, '--r', label=r'$\epsilon_\lambda$', lw=0.5)
 
     if plot_labels is True:
-        ax.set_ylabel(r'$F_\lambda/F_{\lambda%i}$' % out['keywords']['l_norm'], fontsize=11)
-        ax.set_xlabel(r'$\lambda\mathrm{[\AA]}$', fontsize=11)
+        ax.set_ylabel(r'$F_\lambda/F_{\lambda%i}$' % out['keywords']['l_norm'], fontsize=label_fontsize)
+        ax.set_xlabel(r'$\lambda\mathrm{[\AA]}$', fontsize=label_fontsize)
 
     if plot_syn is True:
         ax.plot(l_obs, f_syn, color=syn_color, lw=syn_lw, label=syn_label, zorder=5)
@@ -218,12 +223,21 @@ def plot_spec_simple(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True
             ax.errorbar(wl_pho, flux_obs, flux_err, fmt='ok', ecolor='k', markersize=PHO_markersize
                         , label=PHO_obs_label, zorder=14)
 
-        # Plotting modeled photometry:
-        ax.plot(wl_pho, flux_mod, 'o', color=PHO_color, markersize=PHO_markersize
-                , label=PHO_label, zorder=15, markeredgecolor=PHO_edgecolor, markeredgewidth=1)
+            # Plotting modeled photometry:
+            ax.plot(wl_pho, flux_mod, 'o', color=PHO_color, markersize=PHO_markersize
+                    , label=PHO_label, zorder=15, markeredgecolor=PHO_edgecolor, markeredgewidth=1)
 
     ax.set_ylim(0, 1.5 * np.max(f_syn))
-    ax.set_xlim(out['keywords']['l_ini'], out['keywords']['l_fin'])
+    
+    if wl_range is None:
+        ax.set_xlim(out['keywords']['l_ini'], out['keywords']['l_fin'])    
+    else:
+        ax.set_xlim(wl_range[0], wl_range[1])
+
+    if show_legend:
+        ax.legend()
+
+    return ax
 
 
 def plot_filter(filter_file, ax=None, filter_color='k'
@@ -290,7 +304,7 @@ def plot_residual_spec(out, ax=None, residual_color='g'
         ax.set_ylabel(r'Residual', fontsize=10)
 
 
-def plot_sfh(out, ax=None, plot_axlabels=True):
+def plot_sfh(out, ax=None, plot_axlabels=True, x_color='b', m_color='r'):
     """
     Plots Starlight star-formation histories.
 
@@ -303,6 +317,12 @@ def plot_sfh(out, ax=None, plot_axlabels=True):
     if ax is None:
         ax = ax.gca()
 
+    if type(out) is str:
+        try:
+            out = stout.read_output_file(out)
+        except (ValueError, IndexError, Exception):
+            print("Check if the output file is ok.")
+
     age_base = out['population']['popage_base']
     popx = out['population']['popx']
     popmu_ini = out['population']['popmu_ini']
@@ -310,11 +330,11 @@ def plot_sfh(out, ax=None, plot_axlabels=True):
     agevec, sfh_x, csfh_x = pp.calc_sfh_x(age_base, popx)
     agevec, sfh_m, csfh_mu = pp.calc_sfh(age_base, popmu_ini)
 
-    ax.plot(np.log10(agevec), csfh_x, color='b', label=r'$x$')
-    ax.plot(np.log10(agevec), csfh_x, '.b')
+    ax.plot(np.log10(agevec), csfh_x, color=x_color, label=r'$x$')
+    ax.scatter(np.log10(agevec), csfh_x, color=x_color, edgecolors='w')
 
-    ax.plot(np.log10(agevec), csfh_mu, color='r', label=r'$\mu$')
-    ax.plot(np.log10(agevec), csfh_mu, '.r')
+    ax.plot(np.log10(agevec), csfh_mu, color=m_color, label=r'$\mu$')
+    ax.scatter(np.log10(agevec), csfh_mu, color=m_color, edgecolors='w')
 
     if out['keywords']['IsQHRcOn'] == 1:
         popQHR = out['popQHR']['QHeff_Perc']
@@ -323,7 +343,7 @@ def plot_sfh(out, ax=None, plot_axlabels=True):
         ax.plot(np.log10(agevec), cQHRvec, '.m')
 
     if plot_axlabels is True:
-        ax.set_xlabel(r'$\log \; t_*$', fontsize=10)
+        ax.set_xlabel(r'$\log \; t_* \; \mathrm{[yr]}$', fontsize=10)
         ax.set_ylabel('Cumulative Fraction [\%]', fontsize=10)
 
 
