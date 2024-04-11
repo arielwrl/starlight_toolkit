@@ -57,7 +57,7 @@ def extinction_corr(flux, wl, EBV):
 
 
 def CCM(wl, R_V=3.1):
-   """
+    """
     Calculates the Cardelli, Clayton & Mathis (CCM) extinction curve.
 
     Parameters:
