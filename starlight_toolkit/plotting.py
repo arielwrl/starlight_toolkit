@@ -3,12 +3,15 @@ import matplotlib.pyplot as plt
 import starlight_toolkit.output as stout
 import starlight_toolkit.post_processing as pp
 import matplotlib.gridspec as gridspec
+from matplotlib import rc
+
+rc('text', usetex=True) 
 
 
 def plot_spec(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True, plot_labels=True, 
               obs_color='k', syn_color='b', syn_lw=0.6, obs_lw=0.5, w0_color='y', clip_color='m', 
               flag_color='g', syn_label=r'$M_\lambda$', plot_PHO=True, PHO_color='cyan', 
-              PHO_label=r'$M_l$', PHO_obs_label=r'$O_l$'):
+              PHO_label=r'$M_l$', PHO_obs_label=r'$O_l$', wl_range=None, show_legend=False):
     """
     Plots the spectra and photometric information.
 
@@ -32,6 +35,8 @@ def plot_spec(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True, plot_
         PHO_color (str, optional): Color of the photometric data. Defaults to 'cyan'.
         PHO_label (str, optional): Label for the photometric data. Defaults to r'$M_l$'.
         PHO_obs_label (str, optional): Label for the observed photometric data. Defaults to r'$O_l$'.
+        wl_range (tuple, optional): Spectral range to be ploted, if not specified, full range is plotted. Default is None.
+        show_legend (bool, optional): Whether to plot legend. Defaults to False.
 
     Raises:
         ValueError: If the output file does not contain the expected information.
@@ -57,7 +62,7 @@ def plot_spec(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True, plot_
 
     flagged = out['spectra']['f_wei'] < -1.0
 
-    error = np.ma.masked_array(1 / f_wei, mask=w0)
+    error = 1 / np.ma.masked_array(f_wei, mask=w0)
 
     if plot_obs is True:
 
@@ -67,7 +72,7 @@ def plot_spec(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True, plot_
 
         ax.plot(l_obs, f_obs_masked, color=obs_color, lw=obs_lw, label=r'$O_\lambda$')
         ax.plot(l_obs, f_w0, color=w0_color, lw=obs_lw, label=r'$w_\lambda=0$')
-        ax.plot(l_obs, f_obs_flag, color=flag_color, lw=obs_lw, label='$Flag$', zorder=10)
+        ax.plot(l_obs, f_obs_flag, color=flag_color, lw=obs_lw, label='Flag', zorder=10)
 
         if clipped.sum() > 0:
             ax.scatter(l_obs, np.ma.masked_array(f_obs, mask=~clipped), color=clip_color,
@@ -110,7 +115,14 @@ def plot_spec(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True, plot_
                 , label=PHO_label, zorder=15)
 
     ax.set_ylim(0, 1.5 * np.max(f_syn))
-    ax.set_xlim(out['keywords']['l_ini'], out['keywords']['l_fin'])
+
+    if wl_range is None:
+        ax.set_xlim(out['keywords']['l_ini'], out['keywords']['l_fin'])    
+    else:
+        ax.set_xlim(wl_range[0], wl_range[1])
+
+    if show_legend:
+        ax.legend()
 
 
 def plot_spec_simple(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True,
@@ -312,7 +324,7 @@ def plot_sfh(out, ax=None, plot_axlabels=True):
 
     if plot_axlabels is True:
         ax.set_xlabel(r'$\log \; t_*$', fontsize=10)
-        ax.set_ylabel('Cumulative Fraction [%]', fontsize=10)
+        ax.set_ylabel('Cumulative Fraction [\%]', fontsize=10)
 
 
 def plot_fit_complete(out, title=None, figsize=(7.75, 6.5), out_fig_fname=None, out_dpi=None, legend_loc='best',
@@ -390,13 +402,11 @@ def plot_fit_complete(out, title=None, figsize=(7.75, 6.5), out_fig_fname=None, 
     p3.set_ylim(0, 110)
     p3.set_xlim(5.8, 11)
 
-    # Annotations:
-
     # Removing ticks:
     p4.set_xticks([])
     p4.set_yticks([])
 
-    # Calculating mass- and light-weighted ages:
+    # # Calculating mass- and light-weighted ages:
     if 'popage_base_upp' in out['population'].keys():
 
         age_base = out['population']['popage_base']
@@ -498,6 +508,7 @@ def plot_fit_complete(out, title=None, figsize=(7.75, 6.5), out_fig_fname=None, 
             p4.annotate('Predicting ELR', (0.51, 0.3), size=annotation_size)
         if out['keywords']['IsELROn'] == 0:
             p4.annotate('ELR off', (0.51, 0.3), size=annotation_size)
+    
     if out['keywords']['IsQHRcOn'] == -1:
         p4.annotate('Predicting QHR', (0.51, 0.6), size=annotation_size)
     if out['keywords']['IsQHRcOn'] == 0:
@@ -508,7 +519,7 @@ def plot_fit_complete(out, title=None, figsize=(7.75, 6.5), out_fig_fname=None, 
                     % (out['keywords']['chi2_FIR'], out['keywords']['k_FIR']), \
                     (0.51, 0.75), size=annotation_size)
     if out['keywords']['IsFIRcOn'] == -1:
-        p4.annotate(r'$\logL_{FIR}^{mod}=%0.2f, FIR/BOL=%0.2f$' \
+        p4.annotate(r'$\log L_{FIR}^{mod}=%0.2f, FIR/BOL=%0.2f$' \
                     % (out['keywords']['FIR_logLFIR_mod'], out['keywords']['FIR_BOL_Ratio'])
                     , (0.51, 0.75), size=annotation_size)
     if out['keywords']['IsFIRcOn'] == 0:
