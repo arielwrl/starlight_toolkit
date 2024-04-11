@@ -183,7 +183,7 @@ def plot_spec_simple(out, ax=None, plot_obs=True, plot_syn=True, plot_error=True
 
     w0 = out['spectra']['f_wei'] <= 0
 
-    error = np.ma.masked_array(1 / f_wei, mask=w0)
+    error = 1 / np.ma.masked_array(f_wei, mask=w0)
 
     if plot_obs is True:
         f_obs_masked = np.ma.masked_array(data=f_obs, mask=w0)
