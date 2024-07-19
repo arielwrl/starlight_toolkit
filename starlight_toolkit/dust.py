@@ -61,7 +61,7 @@ def CCM(wl, R_V=3.1):
     Calculates the Cardelli, Clayton & Mathis (CCM) extinction curve.
 
     Parameters:
-        wl (array-like): Wavelength in Angstroms.
+        wl (array-like): Wavelength array in Angstroms.
         R_V (float, optional): Ratio of total to selective extinction. Default is 3.1.
 
     Returns:
